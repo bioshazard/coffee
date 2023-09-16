@@ -16,7 +16,6 @@ export default function App() {
   useEffect( () => {
     setStore({
       user,
-      supabase
     })
   }, [])
 
