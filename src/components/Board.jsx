@@ -132,15 +132,26 @@ export default function Board(props) {
   }
 
   const [editing, setEditing] = useState([])
+
+  // Toggle by either adding the id if not there, or returning the array without it if present
+  const cardEditToggle = (id) => {
+    console.log(id)
+    console.log(editing)
+    setEditing( state => !state.includes(id)
+      ? [...state, id] 
+      : state.filter(item => item != id) )
+  }
   const editSubmit = async (event) => {
     event.preventDefault()
-    const cardid = event.target.cardid.value
+    const cardid = event.target.id.value
     const content = event.target.content.value
     const update = { content }
     const { error } = await supabase
       .from('cards').update(update).eq('id', cardid)
-    // setEditing(false)
+    cardEditToggle(cardid)
   }
+
+  
 
   const calculateVotes = () => {
     
@@ -173,79 +184,67 @@ export default function Board(props) {
         }
       })
     }
-    // setVotesCalculate(cardVotes)
-    // setVotesMine(myVotes)
     return {
       calculated: cardVotes,
       mine: myVotes
     }
   }
 
-  // const getVotes = async () => {
-
-  //   // Set Votes Data
-  //   // NOTE: Probably not useful in raw format...
-  //   const { data } = await supabase.from("votes").select().eq('boardid', boardid);
-  //   // setVotes(data) // do I even use this??
-
-  //   // # Calculate normalized infiniVote weights
-
-  //   // I asked ChatGPT how to group the vote objects by owner
-  //   // Then asked "more concise" until this popped out lol
-  //   const groupedByOwner = data.reduce( (result, { owner, ...rest }) => ({ 
-  //     ...result,
-  //     [owner]: [...(result[owner] || []), rest] 
-  //   }), {});
-
-  //   // Per owner, calculate the normalized vote weight to add per card
-  //   const myVotes = {}
-  //   const cardVotes = {}
-  //   for(const ownerIndex in groupedByOwner) {
-  //     const ownerVotes = groupedByOwner[ownerIndex]
-  //     const total = ownerVotes.reduce( (acc, cur) => acc + cur.count, 0)
-  //     ownerVotes.forEach( ownerVote => {
-  //       const cardId = ownerVote["cardid"]
-  //       // Initialize
-  //       if(!cardVotes.hasOwnProperty(cardId)) {
-  //         cardVotes[cardId] = 0
-  //         myVotes[cardId] = 0
-  //     }
-  //       cardVotes[cardId] += ownerVote["count"] / total
-  //       if(ownerIndex === owner) {
-  //         myVotes[cardId] += ownerVote["count"]
-  //       }
-  //     })
-  //   }
-  //   setVotesCalculate(cardVotes)
-  //   setVotesMine(myVotes)
-  // }
-  // getVotes()
-
   if(!board || !cards || !votes) return 'loading...'
 
   const voteTotals = calculateVotes()
 
   return (
-    <div>
+    <div className="">
       <h2 className="text-2xl">{board.title}</h2>
       {JSON.stringify(voteTotals)}
-      <ul>
+      {JSON.stringify(editing)}
+      <ul className="flex flex-row gap-x-4 overflow-x-scroll">
       {columns.map( (column, index) => (
         <li key={index}>
-          <h2 className="text-xl">{column}</h2>
-          <ul>
-            <li>
-              <form onSubmit={cardNewSubmit}>
-                <input type="hidden" name="col" value={index} />
-                <input className="border w-full px-1" name="text" placeholder="New Card" />
-              </form>
-            </li>
-            {cards.filter(card => card.col === index).map( card => (
-            <li key={card.id}>
-              {card.content.split('\n')[0]}
-            </li>
-            ))}
-          </ul>
+          <div className="w-64">
+            <h2 className="text-xl">{column}</h2>
+            <ul className="flex flex-col gap-y-4">
+              <li>
+                <form onSubmit={cardNewSubmit}>
+                  <input type="hidden" name="col" value={index} />
+                  <input className="border w-full px-1" name="text" placeholder="New Card" />
+                </form>
+              </li>
+              {cards.filter(card => card.col === index).map( card => (
+              <li key={card.id}>
+                <div className="border">
+                  {editing.includes(card.id) ? (
+                    <div>
+                      <form onSubmit={editSubmit}>
+                        <div className="flex flex-col gap-2">
+                          {/* https://primitives.solidjs.community/package/autofocus */}
+                          <input type="hidden" defaultValue={card.id} name="id"/>
+                          <textarea className="py-1 px-2 border" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
+                          {/* <select className="border py-1 px-2">
+                            <option>Columns Choice</option>
+                          </select> */}
+                          <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" />
+                          <button className="py-1 px-2 bg-red-500 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>Cancel</button>
+                          <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>Delete</button>
+                        </div>
+                      </form>
+                    </div>
+                  ) : (
+                    <div>
+                      {card.content.split('\n')[0]}
+                      <ul>
+                        <li>Calc: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</li>
+                        <li>Mine: {voteTotals.mine[card.id] && voteTotals.mine[card.id] || 0}</li>
+                        <li><button onClick={() => cardEditToggle(card.id)}>Edit</button></li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </li>
+              ))}
+            </ul>
+          </div>
         </li>
       ))}
       </ul>

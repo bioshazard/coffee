@@ -24,7 +24,7 @@ export default function Home(props) {
     <div>
       <ul>
       {boards.map( board => (
-        <li><Link to={`/board/${board.id}`}>{board.title}</Link></li>
+        <li key={board.id}><Link to={`/board/${board.id}`}>{board.title}</Link></li>
       ))}
       </ul>
       <p>coffee how-to</p>
