@@ -2,6 +2,8 @@ import { useParams } from "react-router-dom";
 import { Store } from "../hooks/useStore";
 import { useContext, useEffect, useState } from "react";
 import { supabase } from "../hooks/useSupabase";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function Board(props) {
   const { user } = useContext(Store)
@@ -186,6 +188,42 @@ export default function Board(props) {
     }
   }
 
+  // Define custom components for ReactMarkdown
+  const components = {
+    // Map HTML tags to custom React components with Tailwind CSS classes
+    p: ({ children }) => <p className="mb-4">{children}</p>,
+    h1: ({ children }) => <h1 className="text-3xl font-bold my-4">{children}</h1>,
+    h2: ({ children }) => <h2 className="text-2xl font-bold my-3">{children}</h2>,
+    h3: ({ children }) => <h3 className="text-xl font-bold my-2">{children}</h3>,
+    h4: ({ children }) => <h4 className="text-lg font-bold my-2">{children}</h4>,
+    h5: ({ children }) => <h5 className="text-base font-bold my-2">{children}</h5>,
+    h6: ({ children }) => <h6 className="text-sm font-bold my-2">{children}</h6>,
+    ul: ({ children }) => <ul className="list-disc ml-6 mb-4">{children}</ul>,
+    ol: ({ children }) => <ol className="list-decimal ml-6 mb-4">{children}</ol>,
+    li: ({ children }) => <li className="mb-2">{children}</li>,
+    blockquote: ({ children }) => (
+      <blockquote className="border-l-4 border-gray-400 pl-4 italic my-4">{children}</blockquote>
+    ),
+    // code: ({ children }) => <code className="bg-gray-200 rounded px-2 py-1">{children}</code>,
+    code: ({inline, children}) => inline
+      ? <code className="bg-gray-200 rounded px-2 py-1">{children}</code>
+      // : <code className="bg-gray-200 rounded px-2 py-1">{args.children}</code>,
+      : <div className="bg-gray-900 text-white p-2 rounded-lg shadow-lg">
+          <pre className="font-mono text-sm leading-relaxed overflow-x-scroll">
+            <code>
+              {children}
+            </code>
+          </pre>
+        </div>,
+    
+    // inlineCode: ({ children }) => <code className="bg-gray-200 rounded px-1">INLINE {children}</code>,
+    a: ({ children, href }) => (
+      <a className="text-blue-500 hover:underline" target="_blank" href={href}>
+        {children}
+      </a>
+    ),
+  };
+
   if(!board || !cards || !votes) return 'loading...'
 
   const voteTotals = calculateVotes()
@@ -198,7 +236,7 @@ export default function Board(props) {
       <ul className="flex flex-row gap-x-4 overflow-x-scroll">
       {columns.map( (column, index) => (
         <li key={index}>
-          <div className="w-64">
+          <div className="w-80">
             <h2 className="text-xl">{column}</h2>
             <ul className="flex flex-col gap-y-4">
               <li>
@@ -209,7 +247,7 @@ export default function Board(props) {
               </li>
               {cards.filter(card => card.col === index).map( card => (
               <li key={card.id}>
-                <div className="border">
+                <div className="border p-2">
                   {editing.includes(card.id) ? (
                     <div>
                       <form onSubmit={editSubmit}>
@@ -228,7 +266,7 @@ export default function Board(props) {
                     </div>
                   ) : (
                     <div>
-                      {card.content.split('\n')[0]}
+                      <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
                       <ul>
                         <li>Calc: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</li>
                         <li>Mine: {voteTotals.mine[card.id] && voteTotals.mine[card.id] || 0}</li>

@@ -24,7 +24,7 @@ export default function App() {
   return (
     <div className="p-2">
       <h1 className='text-2xl'>
-        <Link to="/">Coffee</Link>
+        <Link to="/">☕ Coffee</Link>
       </h1>
       <p>{store.user}</p>
       <Store.Provider value={store}>
