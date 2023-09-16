@@ -105,8 +105,7 @@ export default function Board(props) {
       .from('cards').delete().eq('id', cardid)
   }
 
-  const voteAdd = async (cardid) => {
-    const current = votes.mine()
+  const voteAdd = async (cardid, current) => {
     if(!current) {
       const { data, error } = await supabase
         .from('votes').insert({ boardid, cardid, count: 1, owner })
@@ -117,8 +116,7 @@ export default function Board(props) {
     }
   }
 
-  const voteRemove = async (cardid) => {
-    const current = votes.mine()
+  const voteRemove = async (cardid, current) => {
     if(!current) {
       console.error("No votes to remove! How did you even trigger this?!")
     } else if(current === 1) {
@@ -135,8 +133,6 @@ export default function Board(props) {
 
   // Toggle by either adding the id if not there, or returning the array without it if present
   const cardEditToggle = (id) => {
-    console.log(id)
-    console.log(editing)
     setEditing( state => !state.includes(id)
       ? [...state, id] 
       : state.filter(item => item != id) )
@@ -237,6 +233,8 @@ export default function Board(props) {
                         <li>Calc: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</li>
                         <li>Mine: {voteTotals.mine[card.id] && voteTotals.mine[card.id] || 0}</li>
                         <li><button onClick={() => cardEditToggle(card.id)}>Edit</button></li>
+                        <li><button onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}>Up</button></li>
+                        <li><button onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>Down</button></li>
                       </ul>
                     </div>
                   )}
