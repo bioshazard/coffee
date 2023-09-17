@@ -5,7 +5,7 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faMinus, faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faMinus, faPencil, faPlay, faPlus, faStar } from "@fortawesome/free-solid-svg-icons";
 
 export default function Board(props) {
   const { user } = useContext(Store)
@@ -87,9 +87,10 @@ export default function Board(props) {
 
   const cardNewSubmit = async (event) => {
     event.preventDefault()
+    const col = parseInt(event.target.col.value)
     const insert = { 
       boardid,
-      col: parseInt(event.target.col.value),
+      col,
       content: event.target.text.value,
     }
 
@@ -100,6 +101,9 @@ export default function Board(props) {
     
     // Reset input form
     event.target.reset()
+
+    // Re-focus textarea
+    event.target.text.focus()
   }
 
   const cardDelete = async (cardid) => {
@@ -138,12 +142,18 @@ export default function Board(props) {
   }
 
   const [editing, setEditing] = useState([])
+  const [cardNewForm, setCardNewForm] = useState([])
 
   // Toggle by either adding the id if not there, or returning the array without it if present
   const cardEditToggle = (id) => {
     setEditing( state => !state.includes(id)
       ? [...state, id] 
       : state.filter(item => item != id) )
+  }
+  const cardNewFormToggle = (colId) => {
+    setCardNewForm( state => !state.includes(colId)
+      ? [...state, colId] 
+      : state.filter(item => item != colId) )
   }
   const editSubmit = async (event) => {
     event.preventDefault()
@@ -236,10 +246,18 @@ export default function Board(props) {
 
   return (
     <div className="">
-      
-      <h1 className='text-2xl'>
-        <Link to="/">☕ Coffee</Link> / {board.title}
-      </h1>
+      <div>
+        <div className="float-right flex space-x-4 pb-2">
+          <div className="px-2 border rounded text-center"><span className="font-mono px-1">5:00</span> <FontAwesomeIcon icon={faPlay} /></div>
+          <button className="px-2 border rounded">Sort: Votes</button>
+          <button className="px-2 border rounded">Clear My Votes</button>
+          <button className="px-2 border rounded">Clear All Votes</button>
+        </div>
+        <h1 className='text-2xl'>
+          <Link to="/">☕</Link> / {board.title} <FontAwesomeIcon className={false ? "text-yellow-400" : "text-gray-300"} icon={faStar} />
+        </h1>
+        <div className="clear-both"></div>
+      </div>
       {/* {JSON.stringify(voteTotals)}
       {JSON.stringify(editing)} */}
       <ul className="flex flex-row gap-x-4 overflow-x-scroll">
@@ -249,10 +267,18 @@ export default function Board(props) {
             <h2 className="text-xl pb-2">{column}</h2>
             <ul className="flex flex-col gap-y-4">
               <li>
-                <form onSubmit={cardNewSubmit}>
-                  <input type="hidden" name="col" value={colIndex} />
-                  <input className="border w-full px-1" name="text" placeholder="New Card" />
-                </form>
+                {cardNewForm.includes(colIndex) ? (
+                  <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
+                    <input type="hidden" name="col" value={colIndex} />
+                    <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
+                    <input className="text-center bg-green-500 p-2 rounded text-white font-medium" type="submit" value="Add Card" />
+                    <button className="text-center bg-red-500 p-2 rounded text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">Cancel</button>
+                  </form>
+                ) : (
+                  <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border w-full px-1" name="text" placeholder="New Card" />
+                )}
+                {/* {JSON.stringify(cardNewForm)} */}
+
               </li>
               {cards.filter(card => card.col === colIndex).map( card => (
               <li key={card.id}>
@@ -263,7 +289,7 @@ export default function Board(props) {
                         <div className="flex flex-col gap-2">
                           {/* https://primitives.solidjs.community/package/autofocus */}
                           <input type="hidden" defaultValue={card.id} name="id"/>
-                          <textarea className="py-1 px-2 border" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
+                          <textarea autoFocus onKeyDown={detectEsc} className="py-1 px-2 border" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
                           {/* <select className="border py-1 px-2">
                             <option>Columns Choice</option>
                           </select> */}
@@ -307,7 +333,7 @@ export default function Board(props) {
 
 
                       <div className="float-right py-4">
-                        <button onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
+                        <button className="bg-white px-1 rounded" onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
                       </div>
 
                       <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
