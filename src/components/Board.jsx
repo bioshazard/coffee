@@ -4,6 +4,8 @@ import { useContext, useEffect, useState } from "react";
 import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
 
 export default function Board(props) {
   const { user } = useContext(Store)
@@ -131,6 +133,10 @@ export default function Board(props) {
     }
   }
 
+  const cardColumnSet = async (cardid, col) => {
+    const { error } = await supabase.from('cards').update({col}).eq('id', cardid)
+  }
+
   const [editing, setEditing] = useState([])
 
   // Toggle by either adding the id if not there, or returning the array without it if present
@@ -234,18 +240,18 @@ export default function Board(props) {
       {JSON.stringify(voteTotals)}
       {JSON.stringify(editing)}
       <ul className="flex flex-row gap-x-4 overflow-x-scroll">
-      {columns.map( (column, index) => (
-        <li key={index}>
+      {columns.map( (column, colIndex) => (
+        <li key={colIndex}>
           <div className="w-80">
             <h2 className="text-xl">{column}</h2>
             <ul className="flex flex-col gap-y-4">
               <li>
                 <form onSubmit={cardNewSubmit}>
-                  <input type="hidden" name="col" value={index} />
+                  <input type="hidden" name="col" value={colIndex} />
                   <input className="border w-full px-1" name="text" placeholder="New Card" />
                 </form>
               </li>
-              {cards.filter(card => card.col === index).map( card => (
+              {cards.filter(card => card.col === colIndex).map( card => (
               <li key={card.id}>
                 <div className="border p-2">
                   {editing.includes(card.id) ? (
@@ -266,6 +272,10 @@ export default function Board(props) {
                     </div>
                   ) : (
                     <div>
+                      <ul className="flex flex-row gap-x-2">
+                        <li><FontAwesomeIcon icon={faArrowUp} /></li>
+                        <li><FontAwesomeIcon icon={faArrowDown} /></li>
+                      </ul>
                       <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
                       <ul>
                         <li>Calc: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</li>
@@ -273,6 +283,8 @@ export default function Board(props) {
                         <li><button onClick={() => cardEditToggle(card.id)}>Edit</button></li>
                         <li><button onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}>Up</button></li>
                         <li><button onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>Down</button></li>
+                        <li><button onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>Left</button></li>
+                        <li><button onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>Right</button></li>
                       </ul>
                     </div>
                   )}
