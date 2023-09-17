@@ -22,6 +22,9 @@ export default function Home(props) {
 
   return (
     <div>
+      <h1 className='text-2xl'>
+        <Link to="/">☕ Coffee</Link>
+      </h1>
       <ul>
       {boards.map( board => (
         <li key={board.id}><Link to={`/board/${board.id}`}>{board.title}</Link></li>

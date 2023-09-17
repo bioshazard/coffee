@@ -1,11 +1,11 @@
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Store } from "../hooks/useStore";
 import { useContext, useEffect, useState } from "react";
 import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faMinus, faPencil, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function Board(props) {
   const { user } = useContext(Store)
@@ -236,14 +236,17 @@ export default function Board(props) {
 
   return (
     <div className="">
-      <h2 className="text-2xl">{board.title}</h2>
-      {JSON.stringify(voteTotals)}
-      {JSON.stringify(editing)}
+      
+      <h1 className='text-2xl'>
+        <Link to="/">☕ Coffee</Link> / {board.title}
+      </h1>
+      {/* {JSON.stringify(voteTotals)}
+      {JSON.stringify(editing)} */}
       <ul className="flex flex-row gap-x-4 overflow-x-scroll">
       {columns.map( (column, colIndex) => (
         <li key={colIndex}>
           <div className="w-80">
-            <h2 className="text-xl">{column}</h2>
+            <h2 className="text-xl pb-2">{column}</h2>
             <ul className="flex flex-col gap-y-4">
               <li>
                 <form onSubmit={cardNewSubmit}>
@@ -272,12 +275,43 @@ export default function Board(props) {
                     </div>
                   ) : (
                     <div>
-                      <ul className="flex flex-row gap-x-2">
-                        <li><FontAwesomeIcon icon={faArrowUp} /></li>
-                        <li><FontAwesomeIcon icon={faArrowDown} /></li>
-                      </ul>
+                      <div className="text-sm">
+
+                        <div className="float-left space-x-2">
+                          <button 
+                            className="disabled:opacity-25" disabled={card.col === 0}
+                            onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
+                            <FontAwesomeIcon icon={faArrowLeft} />
+                          </button>
+                          <button
+                              className="disabled:opacity-25" disabled={card.col === columns.length - 1}
+                              onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>
+                            <FontAwesomeIcon icon={faArrowRight} />
+                          </button>
+                        </div>
+
+                        <div className="float-right space-x-2">
+                          <button onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faMinus} /></button>
+                          <span className="bg-gray-300 px-2 rounded">{voteTotals.mine[card.id] && voteTotals.mine[card.id] || 0}</span>
+                          <button onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
+                        </div>
+
+                        {/* <ul className="flex flex-row gap-x-2 m-auto"> */}
+                        {/* <ul className="grid grid-flow-col gap-x-2 m-auto"> */}
+                        <div className="flex justify-center space-x-2">
+                          {/* <li><button onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button></li> */}
+                          <span className="">{voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
+                        </div>
+                      </div>
+
+
+
+                      <div className="float-right py-4">
+                        <button onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
+                      </div>
+
                       <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
-                      <ul>
+                      {/* <ul>
                         <li>Calc: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</li>
                         <li>Mine: {voteTotals.mine[card.id] && voteTotals.mine[card.id] || 0}</li>
                         <li><button onClick={() => cardEditToggle(card.id)}>Edit</button></li>
@@ -285,7 +319,7 @@ export default function Board(props) {
                         <li><button onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>Down</button></li>
                         <li><button onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>Left</button></li>
                         <li><button onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>Right</button></li>
-                      </ul>
+                      </ul> */}
                     </div>
                   )}
                 </div>
