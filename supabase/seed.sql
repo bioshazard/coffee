@@ -8,9 +8,9 @@
 -- ;
 
 
-insert into
-public.profiles (id, persistanon)
-values
-('0c6553e2-523a-49bf-9a30-ee63ea14354a', 'testname')
-;
+-- insert into
+-- public.profiles (id, persistanon)
+-- values
+-- ('0c6553e2-523a-49bf-9a30-ee63ea14354a', 'testname')
+-- ;
 

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase, persistanon } from "../hooks/useSupabase";
+import { supabase } from "../hooks/useSupabase";
 import { Store } from "../hooks/useStore";
 
 export default function Home(props) {

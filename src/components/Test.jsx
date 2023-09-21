@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { supabase, persistanon } from "../hooks/useSupabase"
+import { supabase } from "../hooks/useSupabase"
 
 export default function Test(props) {
   

@@ -2,18 +2,43 @@ import { Outlet, Link } from "react-router-dom";
 import { Store } from './hooks/useStore';
 import { useState } from "react";
 import { useEffect } from "react";
-import { supabase, persistanon } from "./hooks/useSupabase";
+import { supabase } from "./hooks/useSupabase";
+import usePsuedonym from "./hooks/usePsuedonym";
 
 export default function App() {
   const [store, setStore] = useState()
 
-  let ran = false
+  let ranLoad = false
   useEffect( () => {
+
+    // Auto instantiate psuedonym
+    async function initPsuedonym() {
+
+      // Acquire signed psuedonym token
+      const psuedonym = usePsuedonym()
+      const psuedonymRequest = await supabase.functions.invoke('psuedon', { body: { psuedonym } })
+      console.log("Psuedonym Token Acquired: ", psuedonymRequest.data.jwt)
+      
+      // Apply token as auth
+      supabase.functions.setAuth(psuedonymRequest.data.jwt)
+      supabase.realtime.setAuth(psuedonymRequest.data.jwt)
+      supabase.rest.headers.Authorization = `Bearer ${psuedonymRequest.data.jwt}`
+      
+      // Ensure psuedonym record in DB
+      const extant = await supabase.from("psuedonyms").select();
+      const account = extant.data.length != 0
+        ? extant
+        : await supabase.from("psuedonym").insert({ psuedonym }).select()
+      
+        console.log(extant, account)
+      // setStore(store => ({ ...store, account: account.data[0] }))
+    }
+    initPsuedonym()
 
     // Auto insatiate profile on visit
     async function loadProfile() {
-      if(ran) return
-      ran = true // Prevent double-run in strict
+      if(ranLoad) return
+      ranLoad = true // Prevent double-run in strict
       const extant = await supabase.from("profiles").select();
       const profile = extant.data.length != 0 
         ? extant // Create if not exists
