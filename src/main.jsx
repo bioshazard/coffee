@@ -10,22 +10,31 @@ import {
 import App from './App.jsx'
 import Home from './components/Home.jsx';
 import Board from './components/Board.jsx';
+import Test from './components/Test';
 
 const router = createRouter([
   {
     path: "/",
-    element: <App />,
-    children: [
-      {
-        index: true,
-        element: <Home />
-      },
-      {
-        path: "/board/:id",
-        element: <Board />
-      }
-    ]
-  },
+    element: <Test />
+  }
+  // {
+  //   path: "/",
+  //   element: <App />,
+  //   children: [
+  //     {
+  //       index: true,
+  //       element: <Home />
+  //     },
+  //     {
+  //       path: '/test',
+  //       element: <Test />,
+  //     },
+  //     {
+  //       path: "/board/:id",
+  //       element: <Board />
+  //     }
+  //   ]
+  // },
 ]);
 
 
