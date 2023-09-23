@@ -4,6 +4,7 @@ import { supabase } from "../hooks/useSupabase";
 import { Store } from "../hooks/useStore";
 
 export default function Home(props) {
+  
   const store = useContext(Store)
   // const [boards, setBoards] = useState()
   const boards = store.boards

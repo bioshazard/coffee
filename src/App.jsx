@@ -12,40 +12,52 @@ export default function App() {
   useEffect( () => {
 
     // Auto instantiate psuedonym
-    async function initPsuedonym() {
+    async function init() {
+
+      // RPC before
+      console.log("PREJWT:", await supabase.rpc('get_jwt'))
 
       // Acquire signed psuedonym token
       const psuedonym = usePsuedonym()
       const psuedonymRequest = await supabase.functions.invoke('psuedon', { body: { psuedonym } })
-      console.log("Psuedonym Token Acquired: ", psuedonymRequest.data.jwt)
+      // console.log(`Psuedonym Token Acquired: |${psuedonymRequest.data.jwt}|`)
       
       // Apply token as auth
       supabase.functions.setAuth(psuedonymRequest.data.jwt)
       supabase.realtime.setAuth(psuedonymRequest.data.jwt)
       supabase.rest.headers.Authorization = `Bearer ${psuedonymRequest.data.jwt}`
-      
+      console.log("POSTJWT:", await supabase.rpc('get_jwt'))
+
       // Ensure psuedonym record in DB
       const extant = await supabase.from("psuedonyms").select();
       const account = extant.data.length != 0
         ? extant
-        : await supabase.from("psuedonym").insert({ psuedonym }).select()
+        : await supabase.from("psuedonyms").insert({ psuedonym }).select()
       
-        console.log(extant, account)
-      // setStore(store => ({ ...store, account: account.data[0] }))
-    }
-    initPsuedonym()
+      console.log("ACCOUNT", account)
 
-    // Auto insatiate profile on visit
-    async function loadProfile() {
-      if(ranLoad) return
-      ranLoad = true // Prevent double-run in strict
-      const extant = await supabase.from("profiles").select();
-      const profile = extant.data.length != 0 
-        ? extant // Create if not exists
-        : await supabase.from("profiles").insert({ persistanon }).select();
-      setStore(store => ({...store, profile: profile.data[0] }))
+      // Get boards list, and sub
+      const boardsSelect = await supabase.from("boards").select();
+
+      // Save to store
+      setStore({
+        boards: boardsSelect.data,
+        psuedonym: account.data[0]
+      })
     }
-    loadProfile()
+    init()
+
+    // // Auto insatiate profile on visit
+    // async function loadProfile() {
+    //   if(ranLoad) return
+    //   ranLoad = true // Prevent double-run in strict
+    //   const extant = await supabase.from("profiles").select();
+    //   const profile = extant.data.length != 0 
+    //     ? extant // Create if not exists
+    //     : await supabase.from("profiles").insert({ persistanon }).select();
+    //   setStore(store => ({...store, profile: profile.data[0] }))
+    // }
+    // loadProfile()
 
     // Initialize with permitted boards list
     // TODO: subscribe?
@@ -103,7 +115,8 @@ export default function App() {
     // return () => { subtest.unsubscribe() }
   }, [])
 
-  if(!store?.boards || !store?.profile) {
+  // !store?.boards || 
+  if(!store?.psuedonym) {
     return (
       <div className="text-center pt-32">Initializing...</div>
     )

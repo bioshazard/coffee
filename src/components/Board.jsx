@@ -5,35 +5,36 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faMinus, faPencil, faPlay, faPlus, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faEraser, faHourglass, faMinus, faPencil, faPlay, faPlus, faSort, faStar, faStop, faStopwatch } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
 // import Timer from "./Timer";
 
 ReactModal.setAppElement('#root');
 
-
 let ran = false
 export default function Board(props) {
-  const { profile, boards } = useContext(Store)
-  const owner = profile.persistanon // TODO: clean this up
-
-  const { id: boardid } = useParams()
+  
   const navigate = useNavigate()
+  const { board_id } = useParams()
 
-  async function addToBoardSubs(id) {
-    // Prevent double load
-    // if(ran) return
-    // ran = true
+  const { psuedonym, boards } = useContext(Store)
+  // const psuedonym.psuedonym = psuedonym.psuedonym // TODO: clean this up
 
-    const result = await supabase.from("board_subs")
-      .insert({ boardid: id, profileid: profile.id })
-      .select()
-    return result
-  }
+
+  // async function addToBoardSubs(id) {
+  //   // Prevent double load
+  //   // if(ran) return
+  //   // ran = true
+
+  //   const result = await supabase.from("board_subs")
+  //     .insert({ board_id: id, profileid: profile.id })
+  //     .select()
+  //   return result
+  // }
 
   // Cut early to manage board sub
   const [notice, setNotice] = useState()
-  if( ! boards.some( obj => obj.id === boardid ) ) {
+  if( ! boards.some( obj => obj.id === board_id ) ) {
     // return (
     //   <div>
     //     <h2>This board is not in your</h2>
@@ -42,27 +43,34 @@ export default function Board(props) {
 
     // Automatically add this board to the subs...
     // TODO: Auto-reload, probably just need to sub to the board_subs table at the app level to auto-refresh
-    // addToBoardSubs(boardid).then( result => {
+    // addToBoardSubs(board_id).then( result => {
     //   console.log("ADD BOARD", result)
     //   navigate(0) // reload page
     // })
 
     const addBoardToList = async () => {
-      const newSub = await addToBoardSubs(boardid)
-      console.log(newSub)
+      // const newSub = await addToBoardSubs(board_id)
+      
+      // Add this board to my board_subs
+      const newSub = await supabase.from("board_subs")
+        .insert({ board_id, owner_id: psuedonym.id })
+        .select()
+      // console.log(newSub)
+
       if(newSub.data) {
         navigate(0) // reload page
-      } else {
-        // failure!
-        if(newSub.error.code === "23503") {
-          setNotice((
-            <div>
-              <span className="border-2 border-rose-500 p-2 bg-red-200">
-                Error {newSub.error.code}: This probably isn't a valid board URL...
-              </span>
-            </div>
-          ))
-        }
+        return
+      }
+
+      // failure!
+      if(newSub.error.code === "23503") {
+        setNotice((
+          <div>
+            <span className="border-2 border-rose-500 p-2 bg-red-200">
+              Error {newSub.error.code}: This probably isn't a valid board URL...
+            </span>
+          </div>
+        ))
       }
     }
 
@@ -94,19 +102,19 @@ export default function Board(props) {
 
     async function getBoard() {
       const { error, data } = await supabase.from("boards")
-        .select().eq('id', boardid).single();
+        .select().eq('id', board_id).single();
       setBoard(data)
     }
 
     const getCards = async () => {
       const { data } = await supabase.from("cards")
-        .select().eq('boardid', boardid);
+        .select().eq('board_id', board_id);
       setCards(data)
     }
     
     const getVotes = async () => {
       const { data } = await supabase.from("votes")
-        .select().eq('boardid', boardid);
+        .select().eq('board_id', board_id);
       setVotes(data)
     }
 
@@ -116,7 +124,7 @@ export default function Board(props) {
 
     const handleSubChange = (change) => {
       // TODO: filter by this board id
-      console.log(change)
+      // console.log(change)
       if(change["table"] === "boards") {
         setBoard(change.new)
         return
@@ -151,13 +159,13 @@ export default function Board(props) {
     // https://supabase.com/docs/reference/javascript/subscribe
     const allSub = supabase
       .channel('dbchanges')
-      // .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'boards', filter: `id=eq.${boardid}` }, handleSubChange)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cards', filter: `boardid=eq.${boardid}` }, handleSubChange)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'cards', filter: `boardid=eq.${boardid}` }, handleSubChange)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'cards', filter: `boardid=eq.${boardid}` }, handleSubChange)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes', filter: `boardid=eq.${boardid}` }, handleSubChange)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'votes', filter: `boardid=eq.${boardid}` }, handleSubChange)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'votes', filter: `boardid=eq.${boardid}` }, handleSubChange)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'boards', filter: `id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'cards', filter: `board_id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'cards', filter: `board_id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes', filter: `board_id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'votes', filter: `board_id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'votes', filter: `board_id=eq.${board_id}` }, handleSubChange)
       .subscribe()
     
     return () => { allSub.unsubscribe() }
@@ -167,7 +175,7 @@ export default function Board(props) {
     event.preventDefault()
     const col = parseInt(event.target.col.value)
     const insert = { 
-      boardid,
+      board_id,
       col,
       content: event.target.text.value,
     }
@@ -184,34 +192,34 @@ export default function Board(props) {
     event.target.text.focus()
   }
 
-  const cardDelete = async (cardid) => {
+  const cardDelete = async (card_id) => {
     const { error: errorVotes } = await supabase
-      .from('votes').delete().eq('cardid', cardid)
+      .from('votes').delete().eq('card_id', card_id)
     const { error: errorCard } = await supabase
-      .from('cards').delete().eq('id', cardid)
+      .from('cards').delete().eq('id', card_id)
   }
 
-  const voteAdd = async (cardid, current) => {
+  const voteAdd = async (card_id, current) => {
     if(!current) {
       const { data, error } = await supabase
-        .from('votes').insert({ boardid, cardid, count: 1, owner })
+        .from('votes').insert({ board_id, card_id, count: 1, owner_id: psuedonym.id })
     } else {
       const { error } = await supabase
-        .from('votes').update({ boardid, cardid, count: current + 1, owner })
-        .eq('cardid', cardid).eq('owner', owner)
+        .from('votes').update({ board_id, card_id, count: current + 1, owner_id: psuedonym.id })
+        .eq('card_id', card_id).eq('owner_id', psuedonym.id)
     }
   }
 
-  const voteRemove = async (cardid, current) => {
+  const voteRemove = async (card_id, current) => {
     if(!current) {
       console.error("No votes to remove! How did you even trigger this?!")
     } else if(current === 1) {
       const { data, error } = await supabase
-        .from('votes').delete().eq('cardid', cardid).eq('owner', owner)
+        .from('votes').delete().eq('card_id', card_id).eq('owner_id', psuedonym.id)
     } else if(current > 1) {
       const { error } = await supabase
-        .from('votes').update({ boardid, cardid, count: current - 1, owner })
-        .eq('cardid', cardid).eq('owner', owner)
+        .from('votes').update({ board_id, card_id, count: current - 1, owner_id: psuedonym.id })
+        .eq('card_id', card_id).eq('owner_id', psuedonym.id)
     }
   }
 
@@ -219,20 +227,20 @@ export default function Board(props) {
 
   const votesClearAll = async () => {
     const { error } = await supabase.from('votes')
-      .delete().eq('boardid', boardid)
+      .delete().eq('board_id', board_id)
     setVoteClearModalOpen(false)
   }
   const votesClearMine = async () => {
     const { error } = await supabase.from('votes')
-      .delete().eq('boardid', boardid).eq('owner', owner)
+      .delete().eq('board_id', board_id).eq('owner_id', psuedonym.id)
   }
 
 
 
 
 
-  const cardColumnSet = async (cardid, col) => {
-    const { error } = await supabase.from('cards').update({col}).eq('id', cardid)
+  const cardColumnSet = async (card_id, col) => {
+    const { error } = await supabase.from('cards').update({col}).eq('id', card_id)
   }
 
   const [editing, setEditing] = useState([])
@@ -251,27 +259,30 @@ export default function Board(props) {
   }
   const editSubmit = async (event) => {
     event.preventDefault()
-    const cardid = event.target.id.value
+    const card_id = event.target.id.value
     const content = event.target.content.value
     const update = { content }
     const { error } = await supabase
-      .from('cards').update(update).eq('id', cardid)
-    cardEditToggle(cardid)
+      .from('cards').update(update).eq('id', card_id)
+    cardEditToggle(card_id)
   }
 
   
 
   const calculateVotes = () => {
+    // console.log(votes)
     
     // TODO: Account for pending load?
     // if(!votes) return [[], []]
 
     // I asked ChatGPT how to group the vote objects by owner
     // Then asked "more concise" until this popped out lol
-    const groupedByOwner = votes.reduce( (result, { owner, ...rest }) => ({ 
+    const groupedByOwner = votes.reduce( (result, { owner_id, ...rest }) => ({ 
       ...result,
-      [owner]: [...(result[owner] || []), rest] 
+      [owner_id]: [...(result[owner_id] || []), rest] 
     }), {});
+
+    // console.log(groupedByOwner)
 
     // Per owner, calculate the normalized vote weight to add per card
     const myVotes = {}
@@ -280,15 +291,15 @@ export default function Board(props) {
       const ownerVotes = groupedByOwner[ownerIndex]
       const total = ownerVotes.reduce( (acc, cur) => acc + cur.count, 0)
       ownerVotes.forEach( ownerVote => {
-        const cardId = ownerVote["cardid"]
+        const card_id = ownerVote["card_id"]
         // Initialize
-        if(!cardVotes.hasOwnProperty(cardId)) {
-          cardVotes[cardId] = 0
-          myVotes[cardId] = 0
+        if(!cardVotes.hasOwnProperty(card_id)) {
+          cardVotes[card_id] = 0
+          myVotes[card_id] = 0
       }
-        cardVotes[cardId] += ownerVote["count"] / total
-        if(ownerIndex === owner) {
-          myVotes[cardId] += ownerVote["count"]
+        cardVotes[card_id] += ownerVote["count"] / total
+        if(ownerIndex === psuedonym.id) {
+          myVotes[card_id] += ownerVote["count"]
         }
       })
     }
@@ -339,7 +350,7 @@ export default function Board(props) {
   const unsubBoard = async () => {
     const result = await supabase.from("board_subs")
       .delete()
-      .eq('boardid', boardid)
+      .eq('board_id', board_id)
       .eq('profileid', profile.id)
     navigate(0) // reload page
   }
@@ -383,7 +394,7 @@ export default function Board(props) {
     timer.setSeconds( timer.getSeconds() + durationSeconds )
 
     const { data, error } = await supabase.from('boards')
-      .update({ timer }).eq('id', boardid).select().single()
+      .update({ timer }).eq('id', board_id).select().single()
     
     // console.log(data)
     
@@ -392,12 +403,25 @@ export default function Board(props) {
     // console.log(ss ? ss : 0)
     // console.log(mm ? mm : 0)
     // console.log(hh ? hh : 0)
-    console.log(durationSeconds)
+    // console.log(durationSeconds)
+  }
+
+  const timerStop = async () => {
+    const { data, error } = await supabase.from('boards')
+      .update({ timer: new Date() }).eq('id', board_id)
   }
 
   const Timer = (props) => {
 
-    const [remainingSeconds, setRemainingSeconds] = useState(-1)
+    const getTimerDiff = () => new Date(props.timer).getTime() - new Date().getTime()
+    const [remainingMilliseconds, setRemainingMilliseconds] = useState( getTimerDiff() )
+
+    const mmss = () => {
+      return [
+        Math.floor(remainingMilliseconds / 1000 / 60),
+        Math.floor(remainingMilliseconds / 1000 % 60),
+      ].join(":")
+    }
 
     // // Manage realtime timer progression
     // useEffect( () => {
@@ -408,14 +432,39 @@ export default function Board(props) {
 
     //   return () => clearInterval(timerInterval)
     // }, [board])
+    useEffect( () => {
+      // If board time remaining is positive, init remaining state and interval countdown
+      const diff = getTimerDiff()
+      console.log("DIFF", diff)
+      if(diff < 0) return
+      setRemainingMilliseconds(diff)
+
+      // setRemainingSeconds()
+      const countdownInterval = setInterval( () => {
+        const diff = getTimerDiff()
+        if(diff < 0) { clearInterval(countdownInterval) }
+        console.log("REMAINING", diff)
+        setRemainingMilliseconds(diff)
+      }, 1000)
+      
+      return () => clearInterval(countdownInterval)
+    }, [])
 
     return (
       <div>
-        {props.timer}
-        {remainingSeconds > 0 ? (
-          <div>{remainingSeconds}</div>
+        {/* {props.timer} */}
+        {remainingMilliseconds > 0 ? (
+          <div className="flex space-x-2">
+            <div className="font-mono">
+              {mmss()}
+            </div>
+            <div>
+              <button onClick={timerStop}><FontAwesomeIcon icon={faStop} /></button>
+            </div>
+          </div>
         ) : (
           <form onSubmit={timerSubmitStart}>
+            <FontAwesomeIcon icon={faStopwatch} />
             <input name="duration" type="text" className="text-center font-mono px-1" size={5} defaultValue={"5:00"} />
             <button><FontAwesomeIcon icon={faPlay} /></button>
           </form>
@@ -440,7 +489,13 @@ export default function Board(props) {
           </div>
         </div>
       </ReactModal>
-      {JSON.stringify(board)}
+
+      {/* <pre>
+      {JSON.stringify(board, undefined, 2)}
+      {JSON.stringify(cards, undefined, 2)}
+      {JSON.stringify(voteTotals, undefined, 2)}
+      </pre> */}
+
       <div>
         <div className="float-right flex space-x-4 pb-2">
           <div className="px-2 border">
@@ -449,9 +504,15 @@ export default function Board(props) {
             {/* <Timer {...timerProps} /> */}
             <Timer timer={board.timer}/>
           </div>
-          <button className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>Sort: {voteSort}</button>
-          <button className="px-2 border" onClick={votesClearMine}>Clear My Votes</button>
-          <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>Clear All Votes</button>
+          <button className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
+            <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
+          </button>
+          <button className="px-2 border" onClick={votesClearMine}>
+            <FontAwesomeIcon icon={faEraser} /> Clear My Votes
+          </button>
+          <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>
+          <FontAwesomeIcon icon={faBomb} /> Clear All Votes
+          </button>
         </div>
         <h1 className='text-2xl'>
           <Link to="/">☕</Link> / {board.title} <button title="Unsubscribe from board" onClick={unsubBoard}><FontAwesomeIcon className="text-yellow-400" icon={faStar} /></button>

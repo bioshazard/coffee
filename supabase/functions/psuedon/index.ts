@@ -4,7 +4,7 @@
 
 import { serve } from "https://deno.land/std/http/server.ts"
 // import { create, sign } from "https://deno.land/x/djwt/mod.ts"
-import { create, verify , getNumericDate, Payload, Header} from "https://deno.land/x/djwt@v2.4/mod.ts";
+import { create, verify, getNumericDate, Payload, Header, decode } from "https://deno.land/x/djwt@v2.4/mod.ts";
 
 console.log("Hello from Functions!")
 
@@ -100,11 +100,16 @@ serve(async (req) => {
   // console.log(req.body.read())
   const { psuedonym } = await req.json()
 
+  console.log('apikey: ', )
+
+  // const [header, payload, signature] = decode(req.headers.get('apikey'));
+  const apikeyParts = decode(req.headers.get('apikey'));
+  // console.log("PAYLOAD", )
+
+  // {:error, "Fields `role` and `exp` are required in JWT"}
   const payload: Payload = {
-    iss: "supabase-demo",
-    role: "anon",
+    ...apikeyParts[1],
     psuedonym
-    // exp: getNumericDate(300), // expires in 5 min.
   };
 
   const secret = Deno.env.get('JWT_SECRET')

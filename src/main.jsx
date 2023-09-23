@@ -30,7 +30,7 @@ const router = createRouter([
       //   element: <Test />,
       // },
       {
-        path: "/board/:id",
+        path: "/board/:board_id",
         element: <Board />
       }
     ]
