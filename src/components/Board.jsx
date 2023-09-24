@@ -372,12 +372,15 @@ export default function Board(props) {
   // }
 
   const cardSortFn = (a, b) => {
+
     if(voteSort === "created") {
       return new Date(a.created).getTime() - new Date(b.created).getTime()
     }
 
     // else sort by vote calculation
-    return voteTotals.calculated[b.id] - voteTotals.calculated[a.id]
+    const aVal =  voteTotals.calculated[a.id] ? voteTotals.calculated[a.id] : 0
+    const bVal =  voteTotals.calculated[b.id] ? voteTotals.calculated[b.id] : 0
+    return aVal - bVal
   }
 
   const timerSubmitStart = async event => {
@@ -541,7 +544,7 @@ export default function Board(props) {
                 {/* {JSON.stringify(cardNewForm)} */}
 
               </li>
-              {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).map( card => (
+              {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
               <li key={card.id}>
                 <div className="border p-2 group">
                   {editing.includes(card.id) ? (
