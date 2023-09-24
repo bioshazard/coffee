@@ -500,7 +500,9 @@ export default function Board(props) {
           </button>
         </div>
         <h1 className='text-2xl'>
-          <Link to="/">☕</Link> / {board.title} <button title="Unsubscribe from board" onClick={unsubBoard}><FontAwesomeIcon className="text-yellow-400" icon={faStar} /></button>
+          <Link to="/">☕</Link> / <form className="inline">
+            <input type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
+          </form> <button title="Unsubscribe from board" onClick={unsubBoard}><FontAwesomeIcon className="text-yellow-400" icon={faStar} /></button>
         </h1>
         <div className="clear-both"></div>
       </div>

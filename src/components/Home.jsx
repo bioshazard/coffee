@@ -91,11 +91,12 @@ export default function Home(props) {
         <Link to="/">☕ Coffee</Link>
       </h1>
       <div className="flex flex-1 overflow-auto flex-row">
-        <div className="px-2">
-          <ul>
-            <li className="py-2">
-              <button className="border p-2" onClick={boardNew}>Create New</button>
-            </li>
+        <div className="px-4 border-r">
+          <button className="border p-2 mb-2" onClick={boardNew}>Create New</button>
+          <ul className="space-y-2">
+            {/* <li className="py-2 text-center">
+              
+            </li> */}
           {boards.map( board => (
             <li key={board.id}><Link to={`/board/${board.id}`}>{board.title}</Link></li>
           ))}
