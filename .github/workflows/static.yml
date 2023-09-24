@@ -43,6 +43,9 @@ jobs:
         run: npm install
       - name: Build page
         run: CI=false npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       # result: build/
       - name: Setup Pages
         uses: actions/configure-pages@v3
