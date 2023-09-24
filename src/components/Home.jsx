@@ -1,9 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../hooks/useSupabase";
 import { Store } from "../hooks/useStore";
+import { v4 as uuidv4 } from 'uuid';
 
 export default function Home(props) {
+  const navigate = useNavigate()
   
   const store = useContext(Store)
   // const [boards, setBoards] = useState()
@@ -58,6 +60,23 @@ export default function Home(props) {
     // console.log("GET PROFILE", data)
   }
 
+  const boardNew = async () => {
+    // RLS prevents select, so we must provide our own ID to re-use with board_subs
+    const boardId = uuidv4();
+    await supabase.from('boards').insert({
+      id: boardId,
+      owner_id: store.psuedonym.id,
+      title: 'Lean Coffee',
+      kind: 'lean'
+    })
+    await supabase.from('board_subs').insert({
+      board_id: boardId,
+      owner_id: store.psuedonym.id
+    })
+    store.getBoards()
+    // navigate(`/board/${boardId}`)
+  }
+
   
   if(!boards) {
     return (
@@ -75,7 +94,7 @@ export default function Home(props) {
         <div className="px-2">
           <ul>
             <li className="py-2">
-              <button className="border p-2">Create New (TODO)</button>
+              <button className="border p-2" onClick={boardNew}>Create New</button>
             </li>
           {boards.map( board => (
             <li key={board.id}><Link to={`/board/${board.id}`}>{board.title}</Link></li>

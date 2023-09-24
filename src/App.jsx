@@ -11,11 +11,38 @@ export default function App() {
   let ranLoad = false
   useEffect( () => {
 
+
+    // Initialize with permitted boards list
+    // TODO: subscribe?
+    async function getBoards() {
+      const { data } = await supabase.from("boards").select();
+      setStore(store => ({...store, boards: data}))
+    }
+    getBoards()
+
+    // const boardNew = async () => {
+    //   // RLS prevents select, so we must provide our own ID to re-use with board_subs
+    //   const boardId = uuidv4();
+    //   await supabase.from('boards').insert({
+    //     id: boardId,
+    //     owner_id: store.psuedonym.id,
+    //     title: 'Lean Coffee',
+    //     kind: 'lean'
+    //   })
+    //   await supabase.from('board_subs').insert({
+    //     board_id: boardId,
+    //     owner_id: store.psuedonym.id
+    //   })
+    //   navigate(`/board/${boardId}`)
+    // }
+
     // Auto instantiate psuedonym
     async function init() {
 
+      // TODO: Cache authorized JWT in local storage to skip init auth
+
       // RPC before
-      console.log("PREJWT:", await supabase.rpc('get_jwt'))
+      // console.log("PREJWT:", await supabase.rpc('get_jwt'))
 
       // Acquire signed psuedonym token
       const psuedonym = usePsuedonym()
@@ -26,7 +53,7 @@ export default function App() {
       supabase.functions.setAuth(psuedonymRequest.data.jwt)
       supabase.realtime.setAuth(psuedonymRequest.data.jwt)
       supabase.rest.headers.Authorization = `Bearer ${psuedonymRequest.data.jwt}`
-      console.log("POSTJWT:", await supabase.rpc('get_jwt'))
+      // console.log("POSTJWT:", await supabase.rpc('get_jwt'))
 
       // Ensure psuedonym record in DB
       const extant = await supabase.from("psuedonyms").select();
@@ -41,6 +68,7 @@ export default function App() {
 
       // Save to store
       setStore({
+        getBoards, // pass fn for home to reload
         boards: boardsSelect.data,
         psuedonym: account.data[0]
       })
@@ -58,14 +86,6 @@ export default function App() {
     //   setStore(store => ({...store, profile: profile.data[0] }))
     // }
     // loadProfile()
-
-    // Initialize with permitted boards list
-    // TODO: subscribe?
-    async function getBoards() {
-      const { data } = await supabase.from("boards").select();
-      setStore(store => ({...store, boards: data}))
-    }
-    getBoards()
 
     // Sub board list
     const handleSubChange = (change) => {

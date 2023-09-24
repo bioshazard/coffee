@@ -23,7 +23,8 @@
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.16.0",
     "remark-gfm": "^3.0.1",
-    "sort-by": "^1.2.0"
+    "sort-by": "^1.2.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

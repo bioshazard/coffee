@@ -362,15 +362,6 @@ export default function Board(props) {
   }
 
   const voteTotals = calculateVotes()
-
-  // const timerSet = (event) => {
-  //   // console.log(event.target.newtime.value)
-  // }
-  // const timerProps = {
-  //   timerEnd: board.timerend,
-  //   // timerSet
-  // }
-
   const cardSortFn = (a, b) => {
 
     if(voteSort === "created") {
@@ -398,15 +389,6 @@ export default function Board(props) {
 
     const { data, error } = await supabase.from('boards')
       .update({ timer }).eq('id', board_id).select().single()
-    
-    // console.log(data)
-    
-    // console.log([ss, mm, hh])
-    // const durationSeconds = ss ? parseInt(ss) : 0 + mm ? parseInt(mm)*60 : 0 + hh ? parseInt(hh)*60*60 : 0
-    // console.log(ss ? ss : 0)
-    // console.log(mm ? mm : 0)
-    // console.log(hh ? hh : 0)
-    // console.log(durationSeconds)
   }
 
   const timerStop = async () => {
