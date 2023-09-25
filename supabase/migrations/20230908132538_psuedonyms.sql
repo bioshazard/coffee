@@ -1,10 +1,10 @@
--- JWT testing
-create or replace function get_jwt()
-returns text as $$
-begin
-  return auth.jwt();
-end;
-$$ language plpgsql security definer;
+-- -- JWT testing
+-- create or replace function get_jwt()
+-- returns text as $$
+-- begin
+--   return auth.jwt();
+-- end;
+-- $$ language plpgsql security definer;
 
 -- # Tables Definitions
 
@@ -117,34 +117,9 @@ on cards for all using (
   )
 );
 
-
-
-
-
--- alter table board_subs enable row level security;
-
--- create policy "Board Subs: INSERT must match JWT"
---   on board_subs
---   using (
---     auth.jwt() ->> 'psuedonym' in (
---       select persistanon from psuedonyms where profileid = id
---     )
---   );
-
--- alter table board_subs enable row level security;
-
--- create policy "Self Manage Board Subs"
---   on board_subs
---   using (
---     current_setting('request.headers')::json ->> 'persistanon' in (
---       select persistanon from profiles where profileid = id
---     )
---   );
-
-
-
 -- Add realtime replication
 alter publication supabase_realtime
 add table boards, cards, votes;
 
--- TODO: Do I need `with check` on UPDATEs? Yep...
+-- TODO: Do I need `with check` on UPDATEs?
+-- Otherwise one could do arbitrary updates?

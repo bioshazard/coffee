@@ -391,6 +391,16 @@ export default function Board(props) {
       .update({ timer }).eq('id', board_id).select().single()
   }
 
+  const boardTitleUpdate = async (event) => {
+    event.preventDefault()
+    const newTitle = event.target.title.value
+    await supabase.from('boards')
+      .update({ title: newTitle })
+      .eq('id', board_id)
+    event.target.title.blur()
+      // Let the realtime sub pick up the change...
+  }
+
   const timerStop = async () => {
     const { data, error } = await supabase.from('boards')
       .update({ timer: new Date() }).eq('id', board_id)
@@ -496,13 +506,16 @@ export default function Board(props) {
             <FontAwesomeIcon icon={faEraser} /> Clear My Votes
           </button>
           <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>
-          <FontAwesomeIcon icon={faBomb} /> Clear All Votes
+            <FontAwesomeIcon icon={faBomb} /> Clear All Votes
+          </button>
+          <button className="px-2 border" title="Unsubscribe from board" onClick={unsubBoard}>
+            <FontAwesomeIcon className="text-yellow-400" icon={faStar} /> Unsub
           </button>
         </div>
         <h1 className='text-2xl'>
-          <Link to="/">☕</Link> / <form className="inline">
-            <input type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
-          </form> <button title="Unsubscribe from board" onClick={unsubBoard}><FontAwesomeIcon className="text-yellow-400" icon={faStar} /></button>
+          <Link to="/">☕</Link> / <form className="inline" onSubmit={boardTitleUpdate}>
+            <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
+          </form>
         </h1>
         <div className="clear-both"></div>
       </div>
