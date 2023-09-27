@@ -200,14 +200,17 @@ export default function Board(props) {
   }
 
   const voteAdd = async (card_id, current) => {
-    if(!current) {
-      const { data, error } = await supabase
-        .from('votes').insert({ board_id, card_id, count: 1, owner_id: psuedonym.id })
-    } else {
-      const { error } = await supabase
-        .from('votes').update({ board_id, card_id, count: current + 1, owner_id: psuedonym.id })
-        .eq('card_id', card_id).eq('owner_id', psuedonym.id)
-    }
+    const beforeVoteCount = !current ? 0 : current
+    await supabase.from('votes').upsert({
+      board_id,
+      card_id,
+      owner_id: psuedonym.id,
+      count: beforeVoteCount + 1,
+    }, {
+      onConflict: 'card_id,owner_id',
+      ignoreDuplicates: false,
+    })
+    // Vote display will update by the realtime subscription
   }
 
   const voteRemove = async (card_id, current) => {
@@ -312,9 +315,9 @@ export default function Board(props) {
   // Define custom components for ReactMarkdown
   const components = {
     // Map HTML tags to custom React components with Tailwind CSS classes
-    p: ({ children }) => <p className="pb-2">{children}</p>,
-    h1: ({ children }) => <h1 className="text-3xl font-bold my-4">{children}</h1>,
-    h2: ({ children }) => <h2 className="text-2xl font-bold my-3">{children}</h2>,
+    p: ({ children }) => <p>{children}</p>,
+    h1: ({ children }) => <h1 className="text-3xl font-bold my-2">{children}</h1>,
+    h2: ({ children }) => <h2 className="text-2xl font-bold my-2">{children}</h2>,
     h3: ({ children }) => <h3 className="text-xl font-bold my-2">{children}</h3>,
     h4: ({ children }) => <h4 className="text-lg font-bold my-2">{children}</h4>,
     h5: ({ children }) => <h5 className="text-base font-bold my-2">{children}</h5>,
@@ -323,7 +326,7 @@ export default function Board(props) {
     ol: ({ children }) => <ol className="list-decimal ml-6 mb-4">{children}</ol>,
     li: ({ children }) => <li className="mb-2">{children}</li>,
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-gray-400 pl-4 italic my-4">{children}</blockquote>
+      <blockquote className="border-l-4 border-gray-400 pl-2 italic">{children}</blockquote>
     ),
     // code: ({ children }) => <code className="bg-gray-200 rounded px-2 py-1">{children}</code>,
     code: ({inline, children}) => inline
