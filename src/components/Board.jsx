@@ -200,6 +200,7 @@ export default function Board(props) {
   }
 
   const voteAdd = async (card_id, current) => {
+    // current = voteTotals.mine[card_id]
     const beforeVoteCount = !current ? 0 : current
     await supabase.from('votes').upsert({
       board_id,
@@ -211,6 +212,15 @@ export default function Board(props) {
       ignoreDuplicates: false,
     })
     // Vote display will update by the realtime subscription
+    // console.log("AFTER")
+    // Took a second to reload locally so maybe I can do optimistic update...
+    // console.log(votes)
+    setVotes( votes => 
+      votes.map( vote => 
+        vote.card_id == card_id && vote.owner_id == psuedonym.id
+        ? { ...vote, count: beforeVoteCount + 1 }
+        : vote
+    ))
   }
 
   const voteRemove = async (card_id, current) => {
@@ -421,19 +431,10 @@ export default function Board(props) {
       ].join(":")
     }
 
-    // // Manage realtime timer progression
-    // useEffect( () => {
-
-    //   const timerInterval = setInterval( () => {
-    //     clearInterval(timerInterval)
-    //   }, 1000)
-
-    //   return () => clearInterval(timerInterval)
-    // }, [board])
     useEffect( () => {
       // If board time remaining is positive, init remaining state and interval countdown
       const diff = getTimerDiff()
-      console.log("DIFF", diff)
+      // console.log("DIFF", diff)
       if(diff < 0) return
       setRemainingMilliseconds(diff)
 
@@ -441,7 +442,7 @@ export default function Board(props) {
       const countdownInterval = setInterval( () => {
         const diff = getTimerDiff()
         if(diff < 0) { clearInterval(countdownInterval) }
-        console.log("REMAINING", diff)
+        // console.log("REMAINING", diff)
         setRemainingMilliseconds(diff)
       }, 1000)
       

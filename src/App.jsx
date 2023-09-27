@@ -8,9 +8,7 @@ import usePsuedonym from "./hooks/usePsuedonym";
 export default function App() {
   const [store, setStore] = useState()
 
-  let ranLoad = false
   useEffect( () => {
-
 
     // Initialize with permitted boards list
     // TODO: subscribe?
@@ -19,22 +17,6 @@ export default function App() {
       setStore(store => ({...store, boards: data}))
     }
     getBoards()
-
-    // const boardNew = async () => {
-    //   // RLS prevents select, so we must provide our own ID to re-use with board_subs
-    //   const boardId = uuidv4();
-    //   await supabase.from('boards').insert({
-    //     id: boardId,
-    //     owner_id: store.psuedonym.id,
-    //     title: 'Lean Coffee',
-    //     kind: 'lean'
-    //   })
-    //   await supabase.from('board_subs').insert({
-    //     board_id: boardId,
-    //     owner_id: store.psuedonym.id
-    //   })
-    //   navigate(`/board/${boardId}`)
-    // }
 
     // Auto instantiate psuedonym
     async function init() {
@@ -74,65 +56,6 @@ export default function App() {
       })
     }
     init()
-
-    // // Auto insatiate profile on visit
-    // async function loadProfile() {
-    //   if(ranLoad) return
-    //   ranLoad = true // Prevent double-run in strict
-    //   const extant = await supabase.from("profiles").select();
-    //   const profile = extant.data.length != 0 
-    //     ? extant // Create if not exists
-    //     : await supabase.from("profiles").insert({ persistanon }).select();
-    //   setStore(store => ({...store, profile: profile.data[0] }))
-    // }
-    // loadProfile()
-
-    // Sub board list
-    const handleSubChange = (change) => {
-      // TODO: filter by this board id
-      console.log("BOARD LIST CHANGE", change)
-  
-      // if(change["table"] === "cards") {
-      //   // getCards(); // replaced by in-place update below
-        
-      //   // Surgical state update
-      //   if(change.eventType === "UPDATE") {
-      //     setCards( cards =>            // Given the current card state
-      //       cards.map( card =>          // Take each of the cards
-      //         card.id === change.old.id // And if the id matches the change
-      //           ? change.new : card     // Return the change, else no change
-      //       )
-      //     )
-      //     return
-      //   }
-      //   if(change.eventType === "INSERT") {
-      //     setCards( cards => [...cards, change.new] )
-      //     return
-      //   }
-      //   if(change.eventType === "DELETE") {
-      //     setCards( cards => cards.filter( card => card.id != change.old.id ) )
-      //     return
-      //   }
-      // }
-      // // TODO: Surgical change: Separate fetch from calc. Modify state and then re-calc.
-      // if(change["table"] === "votes") { getVotes() }
-    }
-  
-    // https://supabase.com/docs/reference/javascript/subscribe
-    // const boardSubSub = supabase
-    //   .channel('any')
-    //   .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'board_subs' }, handleSubChange)
-    //   .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'board_subs' }, handleSubChange)
-    //   .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'board_subs' }, handleSubChange)
-    //   .subscribe()
-    
-    // return () => { boardSubSub.unsubscribe() }
-    
-    // const subtest = supabase.channel('realtime')
-    //   .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'cards' }, (...args) => console.log(args) )
-    //   .subscribe()
-    
-    // return () => { subtest.unsubscribe() }
   }, [])
 
   // !store?.boards || 
