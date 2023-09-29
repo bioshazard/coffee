@@ -300,6 +300,7 @@ export default function Board(props) {
     // Per owner, calculate the normalized vote weight to add per card
     const myVotes = {}
     const cardVotes = {}
+    let myVoteTotal = 0
     for(const ownerIndex in groupedByOwner) {
       const ownerVotes = groupedByOwner[ownerIndex]
       const total = ownerVotes.reduce( (acc, cur) => acc + cur.count, 0)
@@ -313,12 +314,14 @@ export default function Board(props) {
         cardVotes[card_id] += ownerVote["count"] / total
         if(ownerIndex === psuedonym.id) {
           myVotes[card_id] += ownerVote["count"]
+          myVoteTotal += ownerVote["count"]
         }
       })
     }
     return {
       calculated: cardVotes,
-      mine: myVotes
+      mine: myVotes,
+      mineTotal: myVoteTotal
     }
   }
 
@@ -426,8 +429,8 @@ export default function Board(props) {
 
     const mmss = () => {
       return [
-        Math.floor(remainingMilliseconds / 1000 / 60),
-        Math.floor(remainingMilliseconds / 1000 % 60),
+        `${Math.floor(remainingMilliseconds / 1000 / 60)}`.padStart(2, "0"),
+        `${Math.floor(remainingMilliseconds / 1000 % 60)}`.padStart(2, "0"),
       ].join(":")
     }
 
@@ -464,7 +467,7 @@ export default function Board(props) {
         ) : (
           <form onSubmit={timerSubmitStart}>
             <FontAwesomeIcon icon={faStopwatch} />
-            <input name="duration" type="text" className="text-center font-mono px-1" size={5} defaultValue={"5:00"} />
+            <input name="duration" type="text" className="text-center font-mono px-1" size={5} defaultValue={"05:00"} />
             <button><FontAwesomeIcon icon={faPlay} /></button>
           </form>
         )}
@@ -507,7 +510,7 @@ export default function Board(props) {
             <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
           </button>
           <button className="px-2 border" onClick={votesClearMine}>
-            <FontAwesomeIcon icon={faEraser} /> Clear My Votes
+            <FontAwesomeIcon icon={faEraser} /> Clear My Votes ({voteTotals.mineTotal})
           </button>
           <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>
             <FontAwesomeIcon icon={faBomb} /> Clear All Votes
@@ -586,7 +589,19 @@ export default function Board(props) {
                               onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
                             <FontAwesomeIcon icon={faMinus} />
                           </button>
-                          <span className="bg-gray-300 px-1 rounded">{voteTotals.mine[card.id] && voteTotals.mine[card.id] || 0}</span>
+                          <span className={`${voteTotals.mine[card.id] ? "bg-blue-500 text-white" : "bg-gray-300"} p-1 rounded`}>
+                            {voteTotals.mine[card.id] && (
+                              `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
+                            ) || 0}
+                          </span>
+
+
+
+                          
+
+
+
+
                           <button onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                         </div>
                         <div className="flex justify-center space-x-2">
