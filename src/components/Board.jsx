@@ -514,13 +514,13 @@ export default function Board(props) {
   ]
 
   const getMyVoteHue = (cardId) => {
-    // Print hue by weight first decimal
-    const myVoteWeight = (voteTotals.mine[cardId] / voteTotals.mineTotal).toFixed(2)
+    // Print hue by weight first decimal (0+ to 10)
+    const myVoteWeight = Math.round(voteTotals.mine[cardId] * 10 / voteTotals.mineTotal)
     
-    // TODO: Normalize for 100 - 900 range??
-    const tailwindHue = Math.floor(myVoteWeight * 10) * 100 
+    
+    // even normalization across blue 100 - 900
+    const tailwindHue = (Math.floor(myVoteWeight * 0.4) + 4) * 100
 
-    console.log(cardId, myVoteWeight, tailwindHue)
     return `bg-blue-${tailwindHue} ${tailwindHue > 300 ? "text-white" : "text-black"}`
   }
 
