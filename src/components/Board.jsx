@@ -174,11 +174,18 @@ export default function Board(props) {
   const cardNewSubmit = async (event) => {
     event.preventDefault()
     const col = parseInt(event.target.col.value)
+    const content = event.target.text.value
+    if( ! content ) { return } // TODO: Disable the Add button during submit or if textarea empty
+    event.target.text.disabled = true
+    event.target.addCardBtn.disabled = true
     const insert = { 
       board_id,
       col,
-      content: event.target.text.value,
+      content,
     }
+
+    // // Fake delay
+    // await new Promise(resolve => setTimeout(resolve, 5000))
 
     // supabase create card
     const { error } = await supabase
@@ -187,6 +194,8 @@ export default function Board(props) {
     
     // Reset input form
     event.target.reset()
+    event.target.text.disabled = false
+    event.target.addCardBtn.disabled = false
 
     // Re-focus textarea
     event.target.text.focus()
@@ -555,7 +564,7 @@ export default function Board(props) {
                   <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
                     <input type="hidden" name="col" value={colIndex} />
                     <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
-                    <input className="text-center bg-green-500 p-2 rounded text-white font-medium" type="submit" value="Add Card" />
+                    <input className="text-center bg-green-500 p-2 rounded text-white font-medium disabled:opacity-25" type="submit" name="addCardBtn" value="Add Card" />
                     <button className="text-center bg-red-500 p-2 rounded text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">Cancel</button>
                   </form>
                 ) : (
@@ -606,7 +615,7 @@ export default function Board(props) {
                             <FontAwesomeIcon icon={faMinus} />
                           </button>
                           {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
-                          <span className={`${voteTotals.mine[card.id] ? (
+                          <span title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"} className={`${voteTotals.mine[card.id] ? (
                             !votingDisabled ? "bg-blue-500 text-white" : "bg-black text-white"
                           ) : "bg-gray-300"} p-1 rounded`}>
                             {voteTotals.mine[card.id] && (
