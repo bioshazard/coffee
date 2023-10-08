@@ -281,7 +281,6 @@ export default function Board(props) {
   }
 
   
-
   const calculateVotes = () => {
     // console.log(votes)
     
@@ -318,6 +317,7 @@ export default function Board(props) {
         }
       })
     }
+
     return {
       calculated: cardVotes,
       mine: myVotes,
@@ -475,6 +475,22 @@ export default function Board(props) {
     )
   }
 
+  // True if any weight is past the first column
+  // const votingDisabled = voteTotals.calculated[]
+  // console.log(votingDisabled)
+
+  // cards.filter( card => card.col != 0 && voteTotals.calculated[card.id])
+  //   .some( card => )
+
+  // Loop through each card that has votes
+  // If any voted card is past first column, voting is disabled.
+  // const votingDisabled = Object.keys(voteTotals).some( cardId => cards.some( card => ) )
+  const votingDisabled = cards.some( card => card.col != 0 && voteTotals.calculated[card.id])
+  //   console.log(card, card.col, card.col != 0, card.id, voteTotals, voteTotals.calculated[card.id])
+
+  // } )
+  // console.log(votingDisabled)
+
   return (
     <div className="p-2">
       <ReactModal
@@ -585,24 +601,19 @@ export default function Board(props) {
                         </div>
                         <div className="float-right space-x-2 font-mono">
                           <button className="disabled:opacity-25"
-                              disabled={!voteTotals.mine[card.id]} 
+                              disabled={!voteTotals.mine[card.id] || votingDisabled} 
                               onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
                             <FontAwesomeIcon icon={faMinus} />
                           </button>
-                          <span className={`${voteTotals.mine[card.id] ? "bg-blue-500 text-white" : "bg-gray-300"} p-1 rounded`}>
+                          {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
+                          <span className={`${voteTotals.mine[card.id] ? (
+                            !votingDisabled ? "bg-blue-500 text-white" : "bg-black text-white"
+                          ) : "bg-gray-300"} p-1 rounded`}>
                             {voteTotals.mine[card.id] && (
                               `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
                             ) || 0}
                           </span>
-
-
-
-                          
-
-
-
-
-                          <button onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
+                          <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                         </div>
                         <div className="flex justify-center space-x-2">
                           <span className="">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
