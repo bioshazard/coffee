@@ -643,7 +643,7 @@ export default function Board(props) {
                           className={[
                             "p-1 rounded",
                             !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
-                              !votingDisabled ? getMyVoteHue(card.id) : "bg-black"
+                              !votingDisabled ? getMyVoteHue(card.id) : "bg-black text-white"
                             ].join(" ")
                             )
                           ].join(" ")}>
