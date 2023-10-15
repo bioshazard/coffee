@@ -5,7 +5,7 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faEraser, faHourglass, faMinus, faPencil, faPlay, faPlus, faSort, faStar, faStop, faStopwatch } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faSort, faStar, faStop, faStopwatch, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
 // import Timer from "./Timer";
 
@@ -533,10 +533,14 @@ export default function Board(props) {
         <div className="text-center space-y-12">
           <h2 className="text-2xl">Confirm Clear ALL Votes</h2>
           <div>
-            <button className="p-2 rounded bg-red-800 text-white font-medium" onClick={votesClearAll}>DELETE ALL VOTES NOW</button>
+            <button className="p-2 rounded bg-red-800 text-white font-medium" onClick={votesClearAll}>
+            <FontAwesomeIcon icon={faDumpsterFire} /> DELETE ALL VOTES NOW
+            </button>
           </div>
           <div>
-            <button className="p-2 rounded bg-red-500 text-white font-medium" onClick={() => setVoteClearModalOpen(false)}>Cancel</button>
+            <button className="p-2 rounded bg-gray-400 text-white font-medium" onClick={() => setVoteClearModalOpen(false)}>
+              <FontAwesomeIcon icon={faCancel} /> Cancel
+            </button>
           </div>
         </div>
       </ReactModal>
@@ -583,20 +587,25 @@ export default function Board(props) {
           <div className="w-80">
             <h2 className="text-xl pb-2">{column}</h2>
             <ul className="flex flex-col gap-y-4">
-              <li>
-                {cardNewForm.includes(colIndex) ? (
-                  <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
-                    <input type="hidden" name="col" value={colIndex} />
-                    <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
-                    <input className="text-center bg-green-500 p-2 rounded text-white font-medium disabled:opacity-25" type="submit" name="addCardBtn" value="Add Card" />
-                    <button className="text-center bg-red-500 p-2 rounded text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">Cancel</button>
-                  </form>
-                ) : (
-                  <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border w-full px-1" name="text" placeholder="New Card" />
-                )}
-                {/* {JSON.stringify(cardNewForm)} */}
-
-              </li>
+              {colIndex == 0 && ( // only display "New Card" on first column (for now?)
+                <li>
+                  {cardNewForm.includes(colIndex) ? (
+                    <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
+                      <input type="hidden" name="col" value={colIndex} />
+                      <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
+                      {/* <input className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25" type="submit" name="addCardBtn" value="Add Card" /> */}
+                      <button className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
+                        <FontAwesomeIcon icon={faNoteSticky} /> Add Card
+                      </button>
+                      <button className="text-center bg-gray-400 p-2 text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">
+                        <FontAwesomeIcon icon={faCancel} /> Cancel
+                      </button>
+                    </form>
+                  ) : (
+                    <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border w-full px-1" name="text" placeholder="New Card" />
+                  )}
+                </li>
+              )}
               {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
               <li key={card.id}>
                 <div className="border p-2 group">
@@ -610,9 +619,16 @@ export default function Board(props) {
                           {/* <select className="border py-1 px-2">
                             <option>Columns Choice</option>
                           </select> */}
-                          <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" />
-                          <button className="py-1 px-2 bg-red-500 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>Cancel</button>
-                          <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>Delete</button>
+                          {/* <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" /> */}
+                          <button className="py-1 px-2 bg-green-500 text-white font-medium">
+                            <FontAwesomeIcon icon={faFloppyDisk} /> Save
+                          </button>
+                          <button className="py-1 px-2 bg-gray-400 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>
+                            <FontAwesomeIcon icon={faCancel} /> Cancel
+                          </button>
+                          <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>
+                            <FontAwesomeIcon icon={faTrash} /> Delete
+                          </button>
                         </div>
                       </form>
                     </div>
