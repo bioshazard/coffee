@@ -5,7 +5,7 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faSort, faStar, faStop, faStopwatch, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRightFromBracket, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
 // import Timer from "./Timer";
 
@@ -77,7 +77,7 @@ export default function Board(props) {
     return (
       // <div className="text-center pt-32">Adding you to the board...</div>
       <div className="text-center pt-32 space-y-8">
-        <h2>This board is not in your list. Proceed to add it.</h2>
+        <h2>This board is not pinned in your list. Proceed to pin it.</h2>
         <button onClick={addBoardToList} className="p-2 border font-medium">Proceed to Board</button>
         <div>
           <Link to='/' className="p-3 border font-medium">Return to Home</Link>
@@ -524,6 +524,8 @@ export default function Board(props) {
     return `bg-blue-${tailwindHue} ${tailwindHue > 300 ? "text-white" : "text-black"}`
   }
 
+  const ownsBoard = board.owner_id == psuedonym.id
+
   return (
     <div className="p-2">
       <ReactModal
@@ -552,7 +554,8 @@ export default function Board(props) {
       </pre> */}
 
       <div>
-        <div className="float-right flex space-x-4 pb-2">
+        {/* `whitespace-nowrap` in this div class gets me the nowrap effect I want but how to I scroll it? float right likely preventing that */}
+        <div className="float-right flex space-x-4 pb-2 ">
           <div className="px-2 border">
             {/* <span className="font-mono px-1">5:00</span>
             <FontAwesomeIcon icon={faPlay} /> */}
@@ -568,8 +571,10 @@ export default function Board(props) {
           <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>
             <FontAwesomeIcon icon={faBomb} /> Clear All Votes
           </button>
-          <button className="px-2 border" title="Unsubscribe from board" onClick={unsubBoard}>
-            <FontAwesomeIcon className="text-yellow-400" icon={faStar} /> Unsub
+          <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard} 
+            title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
+            onClick={unsubBoard}>
+            <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
           </button>
         </div>
         <h1 className='text-2xl'>
