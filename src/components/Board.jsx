@@ -257,6 +257,13 @@ export default function Board(props) {
       .delete().eq('board_id', board_id).eq('owner_id', psuedonym.id)
   }
 
+  const cardsClearAll = async () => {
+    await votesClearAll() // TODO: Should really rather use delete cascase on votes...
+    const { error } = await supabase.from('cards')
+      .delete().eq('board_id', board_id)
+    setVoteClearModalOpen(false)
+  }
+
 
 
 
@@ -533,10 +540,15 @@ export default function Board(props) {
         onRequestClose={() => setVoteClearModalOpen(false)}
       >
         <div className="text-center space-y-12">
-          <h2 className="text-2xl">Confirm Clear ALL Votes</h2>
+          <h2 className="text-2xl">Confirm Board Clear</h2>
           <div>
             <button className="p-2 rounded bg-red-800 text-white font-medium" onClick={votesClearAll}>
-            <FontAwesomeIcon icon={faDumpsterFire} /> DELETE ALL VOTES NOW
+            <FontAwesomeIcon icon={faDumpsterFire} /> Clear ALL Votes NOW
+            </button>
+          </div>
+          <div>
+            <button className="p-2 rounded bg-red-800 text-white font-medium" onClick={cardsClearAll}>
+            <FontAwesomeIcon icon={faDumpsterFire} /> Clear ALL Cards NOW
             </button>
           </div>
           <div>
@@ -569,7 +581,7 @@ export default function Board(props) {
             <FontAwesomeIcon icon={faEraser} /> Clear My Votes ({voteTotals.mineTotal})
           </button>
           <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>
-            <FontAwesomeIcon icon={faBomb} /> Clear All Votes
+            <FontAwesomeIcon icon={faBomb} /> Clear Board
           </button>
           <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard} 
             title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
@@ -598,8 +610,7 @@ export default function Board(props) {
                     <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
                       <input type="hidden" name="col" value={colIndex} />
                       <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
-                      {/* <input className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25" type="submit" name="addCardBtn" value="Add Card" /> */}
-                      <button className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
+                      <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
                         <FontAwesomeIcon icon={faNoteSticky} /> Add Card
                       </button>
                       <button className="text-center bg-gray-400 p-2 text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">
