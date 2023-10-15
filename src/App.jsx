@@ -43,7 +43,7 @@ export default function App() {
         ? extant
         : await supabase.from("psuedonyms").insert({ psuedonym }).select()
       
-      console.log("ACCOUNT", account)
+      // console.log("ACCOUNT", account)
 
       // Get boards list, and sub
       const boardsSelect = await supabase.from("boards").select();

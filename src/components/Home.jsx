@@ -10,7 +10,7 @@ export default function Home(props) {
   const store = useContext(Store)
   // const [boards, setBoards] = useState()
   const boards = store.boards
-  console.log(boards)
+  // console.log(boards)
 
   useEffect( () => {
     // https://supabase.com/docs/reference/javascript/subscribe
@@ -22,32 +22,9 @@ export default function Home(props) {
     // return () => { boardSubSub.unsubscribe() }
   })
 
-  // useEffect( () => {
-    
-  //   async function getBoards() {
-  //     const { data } = await supabase.from("boards").select();
-  //     setBoards(data)
-  //   }
-  //   getBoards()
-
-  //   // TODO: postgres sub
-  //   // return () => { }
-  // }, [])
-
-  // async function getProfile() {
-  //   const { data } = await supabase.from("profiles").select();
-  //   console.log("GET PROFILE", data)
-  // }
-
-  // async function createProfile() {
-  //   const { data } = await supabase.from("profiles")
-  //     .insert({ persistanon })
-  //   // console.log("GET PROFILE", data)
-  // }
-
   async function getSubs() {
     const { data } = await supabase.from("board_subs").select();
-    console.log("GET subs", data)
+    // console.log("GET subs", data)
   }
 
   async function addSub() {
