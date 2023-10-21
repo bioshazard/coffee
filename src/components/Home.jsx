@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../hooks/useSupabase";
 import { Store } from "../hooks/useStore";
 import { v4 as uuidv4 } from 'uuid';
+import GitHubButton from "react-github-btn";
+
 
 export default function Home(props) {
   const navigate = useNavigate()
@@ -64,8 +66,12 @@ export default function Home(props) {
   return (
 
     <>
-      <h1 className='text-2xl flex p-2'>
-        <Link to="/">☕ Coffee</Link>
+      <h1 className='text-2xl p-2'>
+        <div className="float-right">
+          {/* <GitHubButton href="https://github.com/bioshazard/coffee" data-show-count="true" data-size="large" aria-label="Star bioshazard/coffee on GitHub">Star</GitHubButton> */}
+          <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
+        </div>
+        <Link to="/">☕ Clean Coffee</Link>
       </h1>
       <div className="flex flex-1 overflow-auto flex-row">
         <div className="px-4 border-r">
