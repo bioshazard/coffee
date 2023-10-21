@@ -664,14 +664,14 @@ export default function Board(props) {
                             <FontAwesomeIcon icon={faArrowRight} />
                           </button>
                         </div>
-                        <div className="float-right space-x-2 font-mono">
+                        <div className="float-right space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
                           <button className="disabled:opacity-25"
                               disabled={!voteTotals.mine[card.id] || votingDisabled} 
                               onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
                             <FontAwesomeIcon icon={faMinus} />
                           </button>
                           {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
-                          <span title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}
+                          <span
                           className={[
                             "p-1 rounded",
                             !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
@@ -680,13 +680,14 @@ export default function Board(props) {
                             )
                           ].join(" ")}>
                             {voteTotals.mine[card.id] && (
-                              `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
+                              // `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
+                              voteTotals.mine[card.id]
                             ) || 0}
                           </span>
                           <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                         </div>
                         <div className="flex justify-center space-x-2">
-                          <span className="">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
+                          <span className="font-bold">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
                         </div>
                       </div>
 
