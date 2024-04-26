@@ -650,9 +650,9 @@ export default function Board(props) {
                     </div>
                   ) : (
                     // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
-                    <div className="">
-                      <div className="text-xs">
-                        <div className="float-left space-x-2">
+                    <div className="space-y-1">
+                      <div className="text-xs flex flex-row justify-between">
+                        <div className="space-x-2">
                           <button 
                             className="disabled:opacity-25" disabled={card.col === 0}
                             onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
@@ -664,7 +664,10 @@ export default function Board(props) {
                             <FontAwesomeIcon icon={faArrowRight} />
                           </button>
                         </div>
-                        <div className="float-right space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
+                        <div className="flex justify-center space-x-2">
+                          <span className="font-bold">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
+                        </div>
+                        <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
                           <button className="disabled:opacity-25"
                               disabled={!voteTotals.mine[card.id] || votingDisabled} 
                               onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
@@ -686,16 +689,19 @@ export default function Board(props) {
                           </span>
                           <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                         </div>
-                        <div className="flex justify-center space-x-2">
-                          <span className="font-bold">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
+                      </div>
+
+                      <div className="flex flex-row justify-between">
+                        <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
+                        <div className="">
+                          <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
                         </div>
                       </div>
 
-                      <div className="float-right py-2">
-                        <button className="bg-white rounded invisible group-hover:visible" onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
+
+                      <div className="text-right text-xs text-gray-500">
+                        <em>{new Date(card.created).toLocaleDateString()} {new Date(card.created).toLocaleTimeString()}</em>
                       </div>
-                      <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
-                      {/* <div className="text-center text-xs">{new Date(card.created).toISOString()}</div> */}
                     </div>
                   )}
                 </div>
