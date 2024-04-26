@@ -691,18 +691,13 @@ export default function Board(props) {
                         </div>
                       </div>
 
-                      <div className="flex flex-row justify-between">
-                        <div>
-                          <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
-                        </div>
-                        <div className="">
-                          <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
-                        </div>
-                      </div>
+                      <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
 
-
-                      <div className="text-right text-xs text-gray-500">
-                        <em>{new Date(card.created).toLocaleDateString()} {new Date(card.created).toLocaleTimeString()}</em>
+                      <div className="flex flex-row justify-between text-xs text-gray-500">
+                        <div className="text-left ">
+                          <em>{new Date(card.created).toLocaleDateString()} {new Date(card.created).toLocaleTimeString()}</em>
+                        </div>
+                        <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
                       </div>
                     </div>
                   )}
