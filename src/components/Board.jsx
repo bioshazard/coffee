@@ -591,7 +591,7 @@ export default function Board(props) {
           </div>
 
           <div className="flex flex-row gap-2">
-            <button className="px-2 border border-red-500" onClick={votesClearMine}>
+            <button className="px-2 border border-red-500" onClick={votesClearAll}>
               <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
             </button>
             <button className="px-2 border border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
