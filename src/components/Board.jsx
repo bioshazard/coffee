@@ -5,8 +5,9 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRightFromBracket, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRepeat, faRightFromBracket, faRotateLeft, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
+import GitHubButton from "react-github-btn";
 // import Timer from "./Timer";
 
 ReactModal.setAppElement('#root');
@@ -534,18 +535,18 @@ export default function Board(props) {
   const ownsBoard = board.owner_id == psuedonym.id
 
   return (
-    <div className="p-2">
+    <>
       <ReactModal
         isOpen={voteClearModalOpen}
         onRequestClose={() => setVoteClearModalOpen(false)}
       >
         <div className="text-center space-y-12">
           <h2 className="text-2xl">Confirm Board Clear</h2>
-          <div>
+          {/* <div>
             <button className="p-2 rounded bg-red-800 text-white font-medium" onClick={votesClearAll}>
             <FontAwesomeIcon icon={faDumpsterFire} /> Clear ALL Votes NOW
             </button>
-          </div>
+          </div> */}
           <div>
             <button className="p-2 rounded bg-red-800 text-white font-medium" onClick={cardsClearAll}>
             <FontAwesomeIcon icon={faDumpsterFire} /> Clear ALL Cards NOW
@@ -558,158 +559,169 @@ export default function Board(props) {
           </div>
         </div>
       </ReactModal>
+      <div className="p-2 flex flex-col gap-1">
 
-      {/* <pre>
-      {JSON.stringify(board, undefined, 2)}
-      {JSON.stringify(cards, undefined, 2)}
-      {JSON.stringify(voteTotals, undefined, 2)}
-      </pre> */}
+        {/* <pre>
+        {JSON.stringify(board, undefined, 2)}
+        {JSON.stringify(cards, undefined, 2)}
+        {JSON.stringify(voteTotals, undefined, 2)}
+        </pre> */}
 
-      <div>
         {/* `whitespace-nowrap` in this div class gets me the nowrap effect I want but how to I scroll it? float right likely preventing that */}
-        <div className="float-right flex space-x-4 pb-2 ">
-          <div className="px-2 border">
-            {/* <span className="font-mono px-1">5:00</span>
-            <FontAwesomeIcon icon={faPlay} /> */}
-            {/* <Timer {...timerProps} /> */}
-            <Timer timer={board.timer}/>
-          </div>
-          <button className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
-            <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
-          </button>
-          <button className="px-2 border" onClick={votesClearMine}>
-            <FontAwesomeIcon icon={faEraser} /> Clear My Votes ({voteTotals.mineTotal})
-          </button>
-          <button className="px-2 border" onClick={() => setVoteClearModalOpen(true)}>
-            <FontAwesomeIcon icon={faBomb} /> Clear Board
-          </button>
-          <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard} 
-            title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
-            onClick={unsubBoard}>
-            <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
-          </button>
+        <div className="flex flex-row justify-between">
+          <h1 className='text-2xl'>
+            <Link to="/">☕</Link> / <form className="inline" onSubmit={boardTitleUpdate}>
+              <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
+            </form>
+          </h1>
+          <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
         </div>
-        <h1 className='text-2xl'>
-          <Link to="/">☕</Link> / <form className="inline" onSubmit={boardTitleUpdate}>
-            <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
-          </form>
-        </h1>
-        <div className="clear-both"></div>
-      </div>
-      {/* {JSON.stringify(voteTotals)}
-      {JSON.stringify(editing)} */}
-      <ul className="flex flex-row gap-x-4 overflow-x-scroll">
-      {columns.map( (column, colIndex) => (
-        <li key={colIndex}>
-          <div className="w-80">
-            <h2 className="text-xl pb-2">{column}</h2>
-            <ul className="flex flex-col gap-y-4">
-              {colIndex == 0 && ( // only display "New Card" on first column (for now?)
-                <li>
-                  {cardNewForm.includes(colIndex) ? (
-                    <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
-                      <input type="hidden" name="col" value={colIndex} />
-                      <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
-                      <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
-                        <FontAwesomeIcon icon={faNoteSticky} /> Add Card
-                      </button>
-                      <button className="text-center bg-gray-400 p-2 text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">
-                        <FontAwesomeIcon icon={faCancel} /> Cancel
-                      </button>
-                    </form>
-                  ) : (
-                    <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border w-full px-1" name="text" placeholder="New Card" />
-                  )}
-                </li>
-              )}
-              {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
-              <li key={card.id}>
-                <div className="border p-2 group">
-                  {editing.includes(card.id) ? (
-                    <div>
-                      <form onSubmit={editSubmit}>
-                        <div className="flex flex-col gap-2">
-                          {/* https://primitives.solidjs.community/package/autofocus */}
-                          <input type="hidden" defaultValue={card.id} name="id"/>
-                          <textarea autoFocus className="py-1 px-2 border" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
-                          {/* <select className="border py-1 px-2">
-                            <option>Columns Choice</option>
-                          </select> */}
-                          {/* <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" /> */}
-                          <button className="py-1 px-2 bg-green-500 text-white font-medium">
-                            <FontAwesomeIcon icon={faFloppyDisk} /> Save
-                          </button>
-                          <button className="py-1 px-2 bg-gray-400 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>
-                            <FontAwesomeIcon icon={faCancel} /> Cancel
-                          </button>
-                          <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>
-                            <FontAwesomeIcon icon={faTrash} /> Delete
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  ) : (
-                    // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
-                    <div className="space-y-1">
-                      <div className="text-xs flex flex-row justify-between">
-                        <div className="space-x-2">
-                          <button 
-                            className="disabled:opacity-25" disabled={card.col === 0}
-                            onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
-                            <FontAwesomeIcon icon={faArrowLeft} />
-                          </button>
-                          <button
-                              className="disabled:opacity-25" disabled={card.col === columns.length - 1}
-                              onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>
-                            <FontAwesomeIcon icon={faArrowRight} />
-                          </button>
-                        </div>
-                        <div className="flex justify-center space-x-2">
-                          <span className="font-bold">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
-                        </div>
-                        <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
-                          <button className="disabled:opacity-25"
-                              disabled={!voteTotals.mine[card.id] || votingDisabled} 
-                              onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
-                            <FontAwesomeIcon icon={faMinus} />
-                          </button>
-                          {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
-                          <span
-                          className={[
-                            "p-1 rounded",
-                            !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
-                              !votingDisabled ? getMyVoteHue(card.id) : "bg-black text-white"
-                            ].join(" ")
-                            )
-                          ].join(" ")}>
-                            {voteTotals.mine[card.id] && (
-                              // `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
-                              voteTotals.mine[card.id]
-                            ) || 0}
-                          </span>
-                          <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
-                        </div>
-                      </div>
 
-                      <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
-
-                      <div className="flex flex-row justify-between text-xs text-gray-500">
-                        <div className="text-left ">
-                          <em>{new Date(card.created).toLocaleDateString()} {new Date(card.created).toLocaleTimeString()}</em>
-                        </div>
-                        <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </li>
-              ))}
-            </ul>
+        <div className="flex flex-row justify-between">
+          <div className="flex flex-row gap-2">
+            <div className="px-2 border">
+              <Timer timer={board.timer}/>
+            </div>
+            <button className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
+              <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
+            </button>
+            <button className="px-2 border" onClick={votesClearMine}>
+              <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes
+            </button>
           </div>
-        </li>
-      ))}
-      </ul>
 
-    </div>
+          <div className="flex flex-row gap-2">
+            <button className="px-2 border border-red-500" onClick={votesClearMine}>
+              <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
+            </button>
+            <button className="px-2 border border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
+              <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
+            </button>
+            <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard} 
+              title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
+              onClick={unsubBoard}>
+              <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
+            </button>
+
+          </div>
+
+        </div>
+
+        {/* {JSON.stringify(voteTotals)}
+        {JSON.stringify(editing)} */}
+        <ul className="flex flex-row gap-x-4 overflow-x-scroll">
+        {columns.map( (column, colIndex) => (
+          <li key={colIndex}>
+            <div className="w-80">
+              <h2 className="text-xl pb-2">{column}</h2>
+              <ul className="flex flex-col gap-y-4">
+                {colIndex == 0 && ( // only display "New Card" on first column (for now?)
+                  <li>
+                    {cardNewForm.includes(colIndex) ? (
+                      <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
+                        <input type="hidden" name="col" value={colIndex} />
+                        <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
+                        <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
+                          <FontAwesomeIcon icon={faNoteSticky} /> Add Card
+                        </button>
+                        <button className="text-center bg-gray-400 p-2 text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">
+                          <FontAwesomeIcon icon={faCancel} /> Cancel
+                        </button>
+                      </form>
+                    ) : (
+                      <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border w-full px-1" name="text" placeholder="New Card" />
+                    )}
+                  </li>
+                )}
+                {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
+                <li key={card.id}>
+                  <div className="border p-2 group">
+                    {editing.includes(card.id) ? (
+                      <div>
+                        <form onSubmit={editSubmit}>
+                          <div className="flex flex-col gap-2">
+                            {/* https://primitives.solidjs.community/package/autofocus */}
+                            <input type="hidden" defaultValue={card.id} name="id"/>
+                            <textarea autoFocus className="py-1 px-2 border" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
+                            {/* <select className="border py-1 px-2">
+                              <option>Columns Choice</option>
+                            </select> */}
+                            {/* <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" /> */}
+                            <button className="py-1 px-2 bg-green-500 text-white font-medium">
+                              <FontAwesomeIcon icon={faFloppyDisk} /> Save
+                            </button>
+                            <button className="py-1 px-2 bg-gray-400 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>
+                              <FontAwesomeIcon icon={faCancel} /> Cancel
+                            </button>
+                            <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>
+                              <FontAwesomeIcon icon={faTrash} /> Delete
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    ) : (
+                      // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
+                      <div className="space-y-1">
+                        <div className="text-xs flex flex-row justify-between">
+                          <div className="space-x-2">
+                            <button 
+                              className="disabled:opacity-25" disabled={card.col === 0}
+                              onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
+                              <FontAwesomeIcon icon={faArrowLeft} />
+                            </button>
+                            <button
+                                className="disabled:opacity-25" disabled={card.col === columns.length - 1}
+                                onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>
+                              <FontAwesomeIcon icon={faArrowRight} />
+                            </button>
+                          </div>
+                          <div className="flex justify-center space-x-2">
+                            <span className="font-bold">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
+                          </div>
+                          <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
+                            <button className="disabled:opacity-25"
+                                disabled={!voteTotals.mine[card.id] || votingDisabled} 
+                                onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
+                              <FontAwesomeIcon icon={faMinus} />
+                            </button>
+                            {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
+                            <span
+                            className={[
+                              "p-1 rounded",
+                              !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
+                                !votingDisabled ? getMyVoteHue(card.id) : "bg-black text-white"
+                              ].join(" ")
+                              )
+                            ].join(" ")}>
+                              {voteTotals.mine[card.id] && (
+                                // `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
+                                voteTotals.mine[card.id]
+                              ) || 0}
+                            </span>
+                            <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
+                          </div>
+                        </div>
+
+                        <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
+
+                        <div className="flex flex-row justify-between text-xs text-gray-500">
+                          <div className="text-left ">
+                            <em>{new Date(card.created).toLocaleDateString()} {/*{new Date(card.created).toLocaleTimeString()}*/}</em>
+                          </div>
+                          <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))}
+        </ul>
+
+      </div>
+    </>
   )
 }
