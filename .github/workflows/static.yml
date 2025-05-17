@@ -1,9 +1,8 @@
-# .github/workflows/pages.yml
 name: Deploy static content to Pages
 
 on:
   push:
-    branches: ["master"]          # change to "main" if that’s your default
+    branches: ["master"]        # change to "main" if that's your default branch
   workflow_dispatch:
 
 permissions:
@@ -25,29 +24,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # ↘ Build -------------------------------------------------------------
       - uses: actions/setup-node@v4
         with:
-          node-version: 20           # current LTS
-          cache: npm                 # speed up installs
+          node-version: 20
+          cache: npm
 
-      - run: npm ci                  # deterministic install
+      - run: npm ci
 
       - name: Build site
         run: |
           CI=false npm run build
         env:
-          VITE_SUPABASE_URL:  ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      # ↘ Publish -----------------------------------------------------------
-      - uses: actions/configure-pages@v4
+      - uses: actions/configure-pages@v5
 
-      # Upload build output as artifact for deployment
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: dist                 # <- vite’s default output
+          path: dist              # vite’s default output directory
 
       - id: deploy
         uses: actions/deploy-pages@v4
