@@ -8,7 +8,7 @@
     "dev": "vite",
     "supabase": "npx supabase start",
     "supabasereset": "npx supabase db reset",
-    "supabasefn": "npx supabase functions serve --env-file ./supabase/.env.local",
+    "supabasefn": "npx supabase functions serve --env-file ./supabase/env.local.dist",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
