@@ -559,7 +559,7 @@ export default function Board(props) {
           </div>
         </div>
       </ReactModal>
-      <div className="p-2 flex flex-col gap-1">
+      <div className="p-2 flex flex-col gap-1 h-full">
 
         {/* <pre>
         {JSON.stringify(board, undefined, 2)}
@@ -577,39 +577,39 @@ export default function Board(props) {
           <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
         </div>
 
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-row gap-2">
-            <div className="px-2 border">
-              <Timer timer={board.timer}/>
+        <div className="flex gap-4 h-full">
+          <div className="flex flex-col gap-2 w-48 h-full">
+            <div className="flex flex-col gap-2">
+              <div className="px-2 border text-center">
+                <Timer timer={board.timer}/>
+              </div>
+              <button type="button" className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
+                <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
+              </button>
+              <button type="button" className="px-2 border" onClick={votesClearMine}>
+                <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes
+              </button>
             </div>
-            <button className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
-              <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
-            </button>
-            <button className="px-2 border" onClick={votesClearMine}>
-              <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes
-            </button>
+            <div className="h-full" />
+            <div className="flex flex-col gap-2"> {/* mt-auto pushes this div to the bottom */}
+              <button type="button" className="px-2 border border-red-500" onClick={votesClearAll}>
+                <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
+              </button>
+              <button type="button" className="px-2 border border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
+                <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
+              </button>
+              <button type="button" className={"px-2 border disabled:opacity-25"} disabled={ownsBoard}
+                title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
+                onClick={unsubBoard}>
+                <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-row gap-2">
-            <button className="px-2 border border-red-500" onClick={votesClearAll}>
-              <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
-            </button>
-            <button className="px-2 border border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
-              <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
-            </button>
-            <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard} 
-              title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
-              onClick={unsubBoard}>
-              <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
-            </button>
-
-          </div>
-
-        </div>
-
-        {/* {JSON.stringify(voteTotals)}
-        {JSON.stringify(editing)} */}
-        <ul className="flex flex-row gap-x-4 overflow-x-scroll">
+          <div className="flex-1 overflow-x-auto">
+            {/* {JSON.stringify(voteTotals)}
+            {JSON.stringify(editing)} */}
+            <ul className="flex flex-row gap-x-4">
         {columns.map( (column, colIndex) => (
           <li key={colIndex}>
             <div className="w-80">
@@ -720,6 +720,8 @@ export default function Board(props) {
           </li>
         ))}
         </ul>
+          </div>
+        </div>
 
       </div>
     </>
