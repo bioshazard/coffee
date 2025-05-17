@@ -96,13 +96,12 @@ export default function Home(props) {
             <li>Discuss one card at a time for 5m each (reset timer if everyone still wants to talk about it)</li>
           </ul>
 
-          <h3 className="text-lg font-medium">Infinite Votes</h3>
-          <p>This application uses Summerfieldian Infinite Voting (SIV).</p>
-          <p>Rather than granting the traditional 6 votes, there is no limit.</p>
+          <h3 className="text-lg font-medium">Voting</h3>
+          <p>Everyone gets eight votes.</p>
+          <p>Votes on each card are summed up and displayed.</p>
           <ul className="list-disc list-inside">
-            <li>All users get 1.0 vote (notice the decimal!)</li>
-            <li>Any number of votes can be given to each card which spreads the 1.0 out fractionally.</li>
-            <li>One curious benefit is that the first vote delivers the full weight of the available voting power.</li>
+            <li>Client side limits each participant to 8 total votes.</li>
+            <li>The highest voted cards rise to the top when sorting by votes.</li>
           </ul>
 
           <h3 className="text-lg font-medium">Authentication</h3>

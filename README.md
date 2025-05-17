@@ -2,16 +2,11 @@
 
 The cleanest lean coffee solution around. Open source and backed by Supabase.
 
-## Inifinite Votes
+## Eight Votes
 
-Standard lean coffee gives participants 6 votes to distribute one or more to the available topics.
+Each participant gets eight votes to distribute among the available topics.
 
-This solution uses infinite voting which gives every participant 1.0 vote to spread fractionally as they please.
-
-A few benefits:
-
-- No need to set vote max per board
-- The first vote delivers the full voting weight so "unused votes" don't reduce impact
+Votes on a card simply add up and whoever has the most votes floats to the top when sorting by votes.
 
 ## React + Vite
 
