@@ -577,8 +577,8 @@ export default function Board(props) {
           <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
         </div>
 
-        <div className="flex flex-row justify-between">
-          <div className="flex flex-row gap-2">
+        <div className="flex gap-4">
+          <div className="flex flex-col gap-2 w-48">
             <div className="px-2 border">
               <Timer timer={board.timer}/>
             </div>
@@ -588,28 +588,23 @@ export default function Board(props) {
             <button className="px-2 border" onClick={votesClearMine}>
               <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes
             </button>
-          </div>
-
-          <div className="flex flex-row gap-2">
             <button className="px-2 border border-red-500" onClick={votesClearAll}>
               <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
             </button>
             <button className="px-2 border border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
               <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
             </button>
-            <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard} 
+            <button className={`px-2 border disabled:opacity-25`} disabled={ownsBoard}
               title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
               onClick={unsubBoard}>
               <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
             </button>
-
           </div>
 
-        </div>
-
-        {/* {JSON.stringify(voteTotals)}
-        {JSON.stringify(editing)} */}
-        <ul className="flex flex-row gap-x-4 overflow-x-scroll">
+          <div className="flex-1 overflow-x-auto">
+            {/* {JSON.stringify(voteTotals)}
+            {JSON.stringify(editing)} */}
+            <ul className="flex flex-row gap-x-4">
         {columns.map( (column, colIndex) => (
           <li key={colIndex}>
             <div className="w-80">
@@ -720,6 +715,8 @@ export default function Board(props) {
           </li>
         ))}
         </ul>
+          </div>
+        </div>
 
       </div>
     </>
