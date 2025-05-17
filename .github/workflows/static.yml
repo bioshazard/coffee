@@ -48,4 +48,4 @@ jobs:
           path: dist                 # <- vite’s default output
 
       - id: deploy
-        uses: actions/deploy-pages@v3
+        uses: actions/deploy-pages@v4
