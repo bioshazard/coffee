@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     // a bunch of stuff to get code server working
-    base: basePath,
+    base: "/",
     server: mode === 'development' ? {
       allowedHosts: [
         "bios-kubuntu.home.arpa",
