@@ -212,6 +212,14 @@ export default function Board(props) {
   const voteAdd = async (card_id, current) => {
     // current = voteTotals.mine[card_id]
     const beforeVoteCount = !current ? 0 : current
+    // Limit to eight votes per participant
+    const myTotal = votes.reduce(
+      (acc, v) => v.owner_id === psuedonym.id ? acc + v.count : acc,
+      0
+    )
+    if(myTotal >= 8) {
+      return
+    }
     await supabase.from('votes').upsert({
       board_id,
       card_id,
@@ -299,41 +307,24 @@ export default function Board(props) {
 
   
   const calculateVotes = () => {
-    // console.log(votes)
-    
-    // TODO: Account for pending load?
-    // if(!votes) return [[], []]
-
-    // I asked ChatGPT how to group the vote objects by owner
-    // Then asked "more concise" until this popped out lol
-    const groupedByOwner = votes.reduce( (result, { owner_id, ...rest }) => ({ 
-      ...result,
-      [owner_id]: [...(result[owner_id] || []), rest] 
-    }), {});
-
-    // console.log(groupedByOwner)
-
-    // Per owner, calculate the normalized vote weight to add per card
+    // Sum up votes per card and track my totals
     const myVotes = {}
     const cardVotes = {}
     let myVoteTotal = 0
-    for(const ownerIndex in groupedByOwner) {
-      const ownerVotes = groupedByOwner[ownerIndex]
-      const total = ownerVotes.reduce( (acc, cur) => acc + cur.count, 0)
-      ownerVotes.forEach( ownerVote => {
-        const card_id = ownerVote["card_id"]
-        // Initialize
-        if(!cardVotes.hasOwnProperty(card_id)) {
-          cardVotes[card_id] = 0
-          myVotes[card_id] = 0
+
+    votes.forEach( vote => {
+      const { card_id, owner_id, count } = vote
+
+      if(!cardVotes.hasOwnProperty(card_id)) {
+        cardVotes[card_id] = 0
       }
-        cardVotes[card_id] += ownerVote["count"] / total
-        if(ownerIndex === psuedonym.id) {
-          myVotes[card_id] += ownerVote["count"]
-          myVoteTotal += ownerVote["count"]
-        }
-      })
-    }
+      cardVotes[card_id] += count
+
+      if(owner_id === psuedonym.id) {
+        myVotes[card_id] = count
+        myVoteTotal += count
+      }
+    })
 
     return {
       calculated: cardVotes,
@@ -676,7 +667,7 @@ export default function Board(props) {
                             </button>
                           </div>
                           <div className="flex justify-center space-x-2">
-                            <span className="font-bold">Votes: {voteTotals.calculated[card.id] && (voteTotals.calculated[card.id]).toFixed(2) || 0}</span>
+                            <span className="font-bold">Votes: {voteTotals.calculated[card.id] || 0}</span>
                           </div>
                           <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
                             <button className="disabled:opacity-25"
