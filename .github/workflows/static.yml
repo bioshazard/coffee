@@ -43,8 +43,10 @@ jobs:
       # ↘ Publish -----------------------------------------------------------
       - uses: actions/configure-pages@v4
 
-      - uses: actions/upload-pages-artifact@v2
+      # Upload build output as artifact for deployment
+      - uses: actions/upload-artifact@v3
         with:
+          name: github-pages
           path: dist                 # <- vite’s default output
 
       - id: deploy
