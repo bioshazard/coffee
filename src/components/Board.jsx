@@ -98,6 +98,7 @@ export default function Board(props) {
   const columns = ['Topics', 'Discussing', 'Done'] // type: lean
 
   const [voteSort, setVoteSort] = useState('created') // TODO: localStorage
+  const [timeFilter, setTimeFilter] = useState('this')
 
   useEffect( () => {
 
@@ -398,6 +399,26 @@ export default function Board(props) {
     return aVal - bVal
   }
 
+  const withinFilter = (card) => {
+    if(timeFilter === 'all') return true
+
+    const created = new Date(card.created)
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setHours(0, 0, 0, 0)
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay())
+    const startOfLastWeek = new Date(startOfWeek)
+    startOfLastWeek.setDate(startOfLastWeek.getDate() - 7)
+
+    if(timeFilter === 'this') {
+      return created >= startOfWeek
+    }
+    if(timeFilter === 'last') {
+      return created >= startOfLastWeek && created < startOfWeek
+    }
+    return true
+  }
+
   const timerSubmitStart = async event => {
     event.preventDefault()
     // split and reverse lets us read seconds if exists, then mm if exists...
@@ -579,6 +600,11 @@ export default function Board(props) {
               <div className="px-2 border text-center">
                 <Timer timer={board.timer}/>
               </div>
+              <select className="px-2 border" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+                <option value="this">Added This Week</option>
+                <option value="last">Added Last Week</option>
+                <option value="all">All</option>
+              </select>
               <button type="button" className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
@@ -629,7 +655,7 @@ export default function Board(props) {
                     )}
                   </li>
                 )}
-                {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
+                {cards.filter(card => card.col === colIndex && withinFilter(card)).toSorted(cardSortFn).reverse().map( card => (
                 <li key={card.id}>
                   <div className="border p-2 group">
                     {editing.includes(card.id) ? (
