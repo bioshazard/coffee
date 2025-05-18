@@ -550,7 +550,7 @@ export default function Board(props) {
           </div>
         </div>
       </ReactModal>
-      <div className="p-2 flex flex-col gap-1 h-full">
+      <div className="p-4 flex flex-col gap-4 h-full">
 
         {/* <pre>
         {JSON.stringify(board, undefined, 2)}
@@ -559,37 +559,37 @@ export default function Board(props) {
         </pre> */}
 
         {/* `whitespace-nowrap` in this div class gets me the nowrap effect I want but how to I scroll it? float right likely preventing that */}
-        <div className="flex flex-row justify-between">
-          <h1 className='text-2xl'>
+        <header className="flex items-center justify-between border-b pb-4">
+          <h1 className='text-2xl font-semibold'>
             <Link to="/">☕</Link> / <form className="inline" onSubmit={boardTitleUpdate}>
               <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
             </form>
           </h1>
           <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
-        </div>
+        </header>
 
-        <div className="flex gap-4 h-full">
-          <div className="flex flex-col gap-2 w-48 h-full">
+        <div className="flex gap-6 h-full">
+          <div className="flex flex-col gap-2 w-56 h-full">
             <div className="flex flex-col gap-2">
-              <div className="px-2 border text-center">
+              <div className="px-2 py-1 border rounded text-center">
                 <Timer timer={board.timer}/>
               </div>
-              <button type="button" className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
+              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
-              <button type="button" className="px-2 border" onClick={votesClearMine}>
+              <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
                 <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes
               </button>
             </div>
             <div className="h-full" />
             <div className="flex flex-col gap-2"> {/* mt-auto pushes this div to the bottom */}
-              <button type="button" className="px-2 border border-red-500" onClick={votesClearAll}>
+              <button type="button" className="px-2 py-1 border rounded border-red-500" onClick={votesClearAll}>
                 <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
               </button>
-              <button type="button" className="px-2 border border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
+              <button type="button" className="px-2 py-1 border rounded border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
                 <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
               </button>
-              <button type="button" className={"px-2 border disabled:opacity-25"} disabled={ownsBoard}
+              <button type="button" className={"px-2 py-1 border rounded disabled:opacity-25"} disabled={ownsBoard}
                 title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
                 onClick={unsubBoard}>
                 <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
@@ -611,7 +611,7 @@ export default function Board(props) {
                     {cardNewForm.includes(colIndex) ? (
                       <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
                         <input type="hidden" name="col" value={colIndex} />
-                        <textarea autoFocus className="border w-full px-1" name="text" placeholder="New Card" rows={5} />
+                        <textarea autoFocus className="border rounded w-full px-2 py-1" name="text" placeholder="New Card" rows={5} />
                         <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
                           <FontAwesomeIcon icon={faNoteSticky} /> Add Card
                         </button>
@@ -620,20 +620,20 @@ export default function Board(props) {
                         </button>
                       </form>
                     ) : (
-                      <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border w-full px-1" name="text" placeholder="New Card" />
+                      <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border rounded w-full px-2 py-1" name="text" placeholder="New Card" />
                     )}
                   </li>
                 )}
                 {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
                 <li key={card.id}>
-                  <div className="border p-2 group">
+                  <div className="border rounded p-3 bg-white group">
                     {editing.includes(card.id) ? (
                       <div>
                         <form onSubmit={editSubmit}>
                           <div className="flex flex-col gap-2">
                             {/* https://primitives.solidjs.community/package/autofocus */}
                             <input type="hidden" defaultValue={card.id} name="id"/>
-                            <textarea autoFocus className="py-1 px-2 border" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
+                            <textarea autoFocus className="py-1 px-2 border rounded" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
                             {/* <select className="border py-1 px-2">
                               <option>Columns Choice</option>
                             </select> */}

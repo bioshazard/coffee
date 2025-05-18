@@ -66,26 +66,20 @@ export default function Home(props) {
   return (
 
     <>
-      <h1 className='text-2xl p-2'>
-        <div className="float-right">
-          {/* <GitHubButton href="https://github.com/bioshazard/coffee" data-show-count="true" data-size="large" aria-label="Star bioshazard/coffee on GitHub">Star</GitHubButton> */}
-          <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
-        </div>
-        <Link to="/">☕ Clean Coffee</Link>
-      </h1>
+      <header className="border-b px-4 py-4 flex items-center justify-between">
+        <Link to="/" className="text-xl font-semibold">☕ Clean Coffee</Link>
+        <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
+      </header>
       <div className="flex flex-1 overflow-auto flex-row">
-        <div className="px-4 border-r">
-          <button className="border p-2 mb-2" onClick={boardNew}>Create New</button>
+        <div className="w-60 border-r p-4 space-y-4">
+          <button className="w-full bg-black text-white px-3 py-2 rounded" onClick={boardNew}>Create New</button>
           <ul className="space-y-2">
-            {/* <li className="py-2 text-center">
-              
-            </li> */}
           {boards.map( board => (
-            <li key={board.id}><Link to={`/board/${board.id}`}>{board.title}</Link></li>
+            <li key={board.id}><Link className="hover:underline" to={`/board/${board.id}`}>{board.title}</Link></li>
           ))}
           </ul>
         </div>
-        <div className="pt-2 px-8 space-y-4">
+        <div className="flex-1 p-4 space-y-6 overflow-y-auto">
           <h2 className="text-xl font-medium">Lets get you some coffee!</h2>
 
           <h3 className="text-lg font-medium">How to run a lean coffee</h3>
