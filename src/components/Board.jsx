@@ -98,7 +98,7 @@ export default function Board(props) {
   const columns = ['Topics', 'Discussing', 'Done'] // type: lean
 
   const [voteSort, setVoteSort] = useState('created') // TODO: localStorage
-  const [timeFilter, setTimeFilter] = useState('all')
+  const [timeFilter, setTimeFilter] = useState('this')
 
   useEffect( () => {
 
@@ -596,8 +596,8 @@ export default function Board(props) {
                 <Timer timer={board.timer}/>
               </div>
               <select className="px-2 border" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
-                <option value="this">This Week</option>
-                <option value="last">Last Week</option>
+                <option value="this">Added This Week</option>
+                <option value="last">Added Last Week</option>
                 <option value="all">All</option>
               </select>
               <button type="button" className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
