@@ -175,7 +175,7 @@ export default function Board(props) {
       .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'cards', filter: `board_id=eq.${board_id}` }, handleSubChange)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'votes', filter: `board_id=eq.${board_id}` }, handleSubChange)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'votes', filter: `board_id=eq.${board_id}` }, handleSubChange)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'votes', filter: `board_id=eq.${board_id}` }, handleSubChange)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'votes' }, handleSubChange) // no other way to detect...
       .subscribe()
     
     return () => { allSub.unsubscribe() }
@@ -269,13 +269,16 @@ export default function Board(props) {
     const { error } = await supabase.from('votes')
       .delete().eq('board_id', board_id)
     setVoteClearModalOpen(false)
-    handleSubChange({"table": "votes"})
+
+    // // DELETE doesnt trigger!
+    // getVotes()
   }
   const votesClearMine = async () => {
     const { error } = await supabase.from('votes')
       .delete().eq('board_id', board_id).eq('owner_id', psuedonym.id)
     
-    handleSubChange({"table": "votes"})
+    // // DELETE doesnt trigger!
+    // getVotes()
   }
 
   const cardsClearAll = async () => {
