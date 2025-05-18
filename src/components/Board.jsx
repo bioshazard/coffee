@@ -605,18 +605,18 @@ export default function Board(props) {
             <button className="mr-2" onClick={() => setSidebarOpen(true)}>
               <FontAwesomeIcon icon={faBars} />
             </button>
-            <h1 className='text-2xl font-semibold'>
-              <Link to="/">☕</Link>
-            </h1>
           </div>
           <div className="flex-1 text-center">
             <form className="inline" onSubmit={boardTitleUpdate}>
-              <h1 className="text-2xl">
-                <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
+              <h1 className="text-2xl font-semibold">
+                <Link to="/">☕</Link> / <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
               </h1>
             </form>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-4">
+            <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+              <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
+            </button>
             <Timer timer={board.timer}/>
           </div>
         </header>
@@ -751,9 +751,6 @@ export default function Board(props) {
                 <option value="last">Added Last Week</option>
                 <option value="all">All</option>
               </select>
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
-                <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
-              </button>
               <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
                 <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes ({voteTotals.mineTotal}/8)
               </button>
