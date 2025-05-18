@@ -493,7 +493,12 @@ export default function Board(props) {
   // Loop through each card that has votes
   // If any voted card is past first column, voting is disabled.
   // const votingDisabled = Object.keys(voteTotals).some( cardId => cards.some( card => ) )
-  const votingDisabled = cards.some( card => card.col != 0 && voteTotals.calculated[card.id])
+  // Voting was previously disabled once any vote was present in a non-To-Do column.
+  // This logic has been turned off by forcing votingDisabled to false.
+  // const votingDisabled = cards.some( card => card.col != 0 && voteTotals.calculated[card.id])
+  // const votingDisabled = false
+  const votingDisabled = false
+  
   //   console.log(card, card.col, card.col != 0, card.id, voteTotals, voteTotals.calculated[card.id])
 
   // } )
@@ -689,7 +694,7 @@ export default function Board(props) {
                                 voteTotals.mine[card.id]
                               ) || 0}
                             </span>
-                            <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
+                            <button disabled={voteTotals.mineTotal >= 8} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                           </div>
                         </div>
 
