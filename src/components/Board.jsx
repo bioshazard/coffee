@@ -5,7 +5,7 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRepeat, faRightFromBracket, faRotateLeft, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRepeat, faRightFromBracket, faRotateLeft, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash, faBars } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
 import GitHubButton from "react-github-btn";
 // import Timer from "./Timer";
@@ -106,6 +106,7 @@ export default function Board(props) {
   }, [voteSort])
 
   const [timeFilter, setTimeFilter] = useState('this')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const getBoard = useCallback(async () => {
     const { error, data } = await supabase.from("boards")
@@ -601,60 +602,26 @@ export default function Board(props) {
         {/* `whitespace-nowrap` in this div class gets me the nowrap effect I want but how to I scroll it? float right likely preventing that */}
         <header className="flex items-center justify-center border-b pb-4">
           <div className="flex items-center">
-            <h1 className='text-2xl font-semibold'>
-              <Link to="/">☕</Link>
-            </h1>
+            <button className="mr-2" onClick={() => setSidebarOpen(true)}>
+              <FontAwesomeIcon icon={faBars} />
+            </button>
           </div>
           <div className="flex-1 text-center">
             <form className="inline" onSubmit={boardTitleUpdate}>
-              <h1 className="text-2xl">
-                <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
+              <h1 className="text-2xl font-semibold">
+                <Link to="/">☕</Link> / <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
               </h1>
             </form>
           </div>
-          <div className="flex items-center">
-            {/* Empty div to balance the flex items */}
+          <div className="flex items-center gap-4">
+            <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+              <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
+            </button>
+            <Timer timer={board.timer}/>
           </div>
         </header>
 
         <div className="flex gap-6 h-full">
-          <div className="flex flex-col gap-2 w-56 h-full">
-            <div className="flex flex-col gap-3">
-              <div className="px-2 py-1 border rounded text-center">
-                <Timer timer={board.timer}/>
-              </div>
-              <select className="px-2 text-center bg-transparent py-1.5 border rounded" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
-                <option value="this">Added This Week</option>
-                <option value="last">Added Last Week</option>
-                <option value="all">All</option>
-              </select>
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
-                <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
-              </button>
-              <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
-                <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes ({voteTotals.mineTotal}/8)
-              </button>
-            </div>
-            <div className="h-full" />
-            <div className="flex flex-col gap-3"> {/* mt-auto pushes this div to the bottom */}
-              <button type="button" className="px-2 py-1 border rounded border-red-500" onClick={votesClearAll}>
-                <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
-              </button>
-              <button type="button" className="px-2 py-1 border rounded border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
-                <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
-              </button>
-              <button type="button" className={"px-2 py-1 border rounded disabled:opacity-25"} disabled={ownsBoard}
-                title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
-                onClick={unsubBoard}>
-                <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
-              </button>
-              <div className="text-center">
-                <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
-              </div>
-
-            </div>
-          </div>
-
           <div className="flex-1 overflow-x-auto">
             {/* {JSON.stringify(voteTotals)}
             {JSON.stringify(editing)} */}
@@ -771,6 +738,40 @@ export default function Board(props) {
         </ul>
           </div>
         </div>
+
+        {sidebarOpen && (
+          <>
+            <div className="fixed inset-0 bg-black/30 z-10" onClick={() => setSidebarOpen(false)} />
+            <div className="fixed inset-y-0 left-0 w-56 p-4 bg-white z-20 overflow-y-auto flex flex-col gap-3">
+              <button className="self-end" onClick={() => setSidebarOpen(false)}>
+                <FontAwesomeIcon icon={faArrowLeft} />
+              </button>
+              <select className="px-2 text-center bg-transparent py-1.5 border rounded" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+                <option value="this">Added This Week</option>
+                <option value="last">Added Last Week</option>
+                <option value="all">All</option>
+              </select>
+              <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
+                <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes ({voteTotals.mineTotal}/8)
+              </button>
+              <div className="flex-1" />
+              <button type="button" className="px-2 py-1 border rounded border-red-500" onClick={votesClearAll}>
+                <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
+              </button>
+              <button type="button" className="px-2 py-1 border rounded border-red-500 bg-red-200" onClick={() => setVoteClearModalOpen(true)}>
+                <FontAwesomeIcon icon={faBomb} /> Clear ALL Cards
+              </button>
+              <button type="button" className={"px-2 py-1 border rounded disabled:opacity-25"} disabled={ownsBoard}
+                title={ownsBoard ? "Can't unpin a board you own"  : "Remove board from my list"}
+                onClick={unsubBoard}>
+                <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
+              </button>
+              <div className="text-center">
+                <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
+              </div>
+            </div>
+          </>
+        )}
 
       </div>
     </>
