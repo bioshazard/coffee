@@ -97,7 +97,15 @@ export default function Board(props) {
   const [votes, setVotes] = useState()
   const columns = ['Topics', 'Discussing', 'Done'] // type: lean
 
-  const [voteSort, setVoteSort] = useState('created') // TODO: localStorage
+  const [voteSort, setVoteSort] = useState(
+    () => localStorage.getItem('voteSort') || 'created'
+  )
+
+  useEffect(() => {
+    localStorage.setItem('voteSort', voteSort)
+  }, [voteSort])
+
+  const [timeFilter, setTimeFilter] = useState('this')
 
   useEffect( () => {
 
@@ -398,6 +406,26 @@ export default function Board(props) {
     return aVal - bVal
   }
 
+  const withinFilter = (card) => {
+    if(timeFilter === 'all') return true
+
+    const created = new Date(card.created)
+    const now = new Date()
+    const startOfWeek = new Date(now)
+    startOfWeek.setHours(0, 0, 0, 0)
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay())
+    const startOfLastWeek = new Date(startOfWeek)
+    startOfLastWeek.setDate(startOfLastWeek.getDate() - 7)
+
+    if(timeFilter === 'this') {
+      return created >= startOfWeek
+    }
+    if(timeFilter === 'last') {
+      return created >= startOfLastWeek && created < startOfWeek
+    }
+    return true
+  }
+
   const timerSubmitStart = async event => {
     event.preventDefault()
     // split and reverse lets us read seconds if exists, then mm if exists...
@@ -493,7 +521,12 @@ export default function Board(props) {
   // Loop through each card that has votes
   // If any voted card is past first column, voting is disabled.
   // const votingDisabled = Object.keys(voteTotals).some( cardId => cards.some( card => ) )
-  const votingDisabled = cards.some( card => card.col != 0 && voteTotals.calculated[card.id])
+  // Voting was previously disabled once any vote was present in a non-To-Do column.
+  // This logic has been turned off by forcing votingDisabled to false.
+  // const votingDisabled = cards.some( card => card.col != 0 && voteTotals.calculated[card.id])
+  // const votingDisabled = false
+  const votingDisabled = false
+  
   //   console.log(card, card.col, card.col != 0, card.id, voteTotals, voteTotals.calculated[card.id])
 
   // } )
@@ -574,7 +607,12 @@ export default function Board(props) {
               <div className="px-2 py-1 border rounded text-center">
                 <Timer timer={board.timer}/>
               </div>
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
+              <select className="px-2-1 py border" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+                <option value="this">Added This Week</option>
+                <option value="last">Added Last Week</option>
+                <option value="all">All</option>
+              </select>
+              <button type="button" className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
               <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
@@ -624,7 +662,7 @@ export default function Board(props) {
                     )}
                   </li>
                 )}
-                {cards.filter(card => card.col === colIndex).toSorted(cardSortFn).reverse().map( card => (
+                {cards.filter(card => card.col === colIndex && withinFilter(card)).toSorted(cardSortFn).reverse().map( card => (
                 <li key={card.id}>
                   <div className="border rounded p-3 bg-white group">
                     {editing.includes(card.id) ? (
@@ -689,7 +727,7 @@ export default function Board(props) {
                                 voteTotals.mine[card.id]
                               ) || 0}
                             </span>
-                            <button disabled={votingDisabled} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
+                            <button disabled={voteTotals.mineTotal >= 8} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                           </div>
                         </div>
 
