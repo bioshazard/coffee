@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Store } from "../hooks/useStore";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,7 +12,7 @@ import GitHubButton from "react-github-btn";
 
 ReactModal.setAppElement('#root');
 
-let ran = false
+const ran = false
 export default function Board(props) {
   
   const navigate = useNavigate()
@@ -35,7 +35,7 @@ export default function Board(props) {
 
   // Cut early to manage board sub
   const [notice, setNotice] = useState()
-  if( ! boards.some( obj => obj.id === board_id ) ) {
+  if( ! boards.some( obj => obj.id === board_id ) ) { // Line 160
     // return (
     //   <div>
     //     <h2>This board is not in your</h2>
@@ -107,63 +107,64 @@ export default function Board(props) {
 
   const [timeFilter, setTimeFilter] = useState('this')
 
+  const getBoard = useCallback(async () => {
+    const { error, data } = await supabase.from("boards")
+      .select().eq('id', board_id).single();
+    setBoard(data)
+  }, [board_id])
+
+  const getCards = useCallback(async () => {
+    const { data } = await supabase.from("cards")
+      .select().eq('board_id', board_id);
+    setCards(data)
+  }, [board_id])
+
+  const getVotes = useCallback(async () => {
+    const { data } = await supabase.from("votes")
+      .select().eq('board_id', board_id);
+    setVotes(data)
+  }, [board_id])
+
+  const handleSubChange = useCallback( (change) => {
+    console.log("SUB CHANGE", {change})
+    // TODO: filter by this board id
+    // console.log(change)
+    if(change["table"] === "boards") {
+      setBoard(change.new)
+      return
+    }
+
+    if(change["table"] === "cards") {
+      // getCards(); // replaced by in-place update below
+      
+      // Surgical state update
+      if(change.eventType === "UPDATE") {
+        setCards( cards =>            // Given the current card state
+          cards.map( card =>          // Take each of the cards
+            card.id === change.old.id // And if the id matches the change
+              ? change.new : card     // Return the change, else no change
+          )
+        )
+        return
+      }
+      if(change.eventType === "INSERT") {
+        setCards( cards => [...cards, change.new] )
+        return
+      }
+      if(change.eventType === "DELETE") {
+        setCards( cards => cards.filter( card => card.id !== change.old.id ) ) // Line 246
+        return
+      }
+    }
+    // TODO: Surgical change: Separate fetch from calc. Modify state and then re-calc.
+    if(change["table"] === "votes") { getVotes() }
+  }, [getVotes])
+
   useEffect( () => {
-
-    async function getBoard() {
-      const { error, data } = await supabase.from("boards")
-        .select().eq('id', board_id).single();
-      setBoard(data)
-    }
-
-    const getCards = async () => {
-      const { data } = await supabase.from("cards")
-        .select().eq('board_id', board_id);
-      setCards(data)
-    }
-    
-    const getVotes = async () => {
-      const { data } = await supabase.from("votes")
-        .select().eq('board_id', board_id);
-      setVotes(data)
-    }
 
     getBoard()
     getCards()
     getVotes()
-
-    const handleSubChange = (change) => {
-      // TODO: filter by this board id
-      // console.log(change)
-      if(change["table"] === "boards") {
-        setBoard(change.new)
-        return
-      }
-  
-      if(change["table"] === "cards") {
-        // getCards(); // replaced by in-place update below
-        
-        // Surgical state update
-        if(change.eventType === "UPDATE") {
-          setCards( cards =>            // Given the current card state
-            cards.map( card =>          // Take each of the cards
-              card.id === change.old.id // And if the id matches the change
-                ? change.new : card     // Return the change, else no change
-            )
-          )
-          return
-        }
-        if(change.eventType === "INSERT") {
-          setCards( cards => [...cards, change.new] )
-          return
-        }
-        if(change.eventType === "DELETE") {
-          setCards( cards => cards.filter( card => card.id != change.old.id ) )
-          return
-        }
-      }
-      // TODO: Surgical change: Separate fetch from calc. Modify state and then re-calc.
-      if(change["table"] === "votes") { getVotes() }
-    }
   
     // https://supabase.com/docs/reference/javascript/subscribe
     const allSub = supabase
@@ -178,7 +179,7 @@ export default function Board(props) {
       .subscribe()
     
     return () => { allSub.unsubscribe() }
-  }, [])
+  }, [board_id, getBoard, getCards, getVotes, handleSubChange])
 
   const cardNewSubmit = async (event) => {
     event.preventDefault()
@@ -243,7 +244,7 @@ export default function Board(props) {
     // console.log(votes)
     setVotes( votes => 
       votes.map( vote => 
-        vote.card_id == card_id && vote.owner_id == psuedonym.id
+        vote.card_id === card_id && vote.owner_id === psuedonym.id // Line 299
         ? { ...vote, count: beforeVoteCount + 1 }
         : vote
     ))
@@ -268,10 +269,13 @@ export default function Board(props) {
     const { error } = await supabase.from('votes')
       .delete().eq('board_id', board_id)
     setVoteClearModalOpen(false)
+    handleSubChange({"table": "votes"})
   }
   const votesClearMine = async () => {
     const { error } = await supabase.from('votes')
       .delete().eq('board_id', board_id).eq('owner_id', psuedonym.id)
+    
+    handleSubChange({"table": "votes"})
   }
 
   const cardsClearAll = async () => {
@@ -371,7 +375,7 @@ export default function Board(props) {
     
     // inlineCode: ({ children }) => <code className="bg-gray-200 rounded px-1">INLINE {children}</code>,
     a: ({ children, href }) => (
-      <a className="text-blue-500 hover:underline" target="_blank" href={href}>
+      <a className="text-blue-500 hover:underline" target="_blank" rel="noreferrer" href={href}> {/* Line 374 */}
         {children}
       </a>
     ),
@@ -387,7 +391,7 @@ export default function Board(props) {
     navigate(0) // reload page
   }
 
-  if(!board || !cards || !votes) {
+  if(!board || !cards || !votes) { // Line 559
     return (
       <div className="text-center pt-32">Loading board...</div>
     )
@@ -428,7 +432,7 @@ export default function Board(props) {
 
   const timerSubmitStart = async event => {
     event.preventDefault()
-    // split and reverse lets us read seconds if exists, then mm if exists...
+    // split and reverse lets us read seconds if exists, then mm, hh if exists...
     const [ss, mm, hh] = event.target.duration.value.split(':').reverse()
     let durationSeconds = 0
     if(!(ss === undefined)) durationSeconds += parseInt(ss) 
@@ -503,7 +507,7 @@ export default function Board(props) {
         ) : (
           <form onSubmit={timerSubmitStart}>
             <FontAwesomeIcon icon={faStopwatch} />
-            <input name="duration" type="text" className="text-center font-mono px-1" size={5} defaultValue={"05:00"} />
+            <input name="duration" type="text" className="text-center bg-transparent font-mono px-1" size={5} defaultValue={"05:00"} />
             <button><FontAwesomeIcon icon={faPlay} /></button>
           </form>
         )}
@@ -592,35 +596,44 @@ export default function Board(props) {
         </pre> */}
 
         {/* `whitespace-nowrap` in this div class gets me the nowrap effect I want but how to I scroll it? float right likely preventing that */}
-        <header className="flex items-center justify-between border-b pb-4">
-          <h1 className='text-2xl font-semibold'>
-            <Link to="/">☕</Link> / <form className="inline" onSubmit={boardTitleUpdate}>
-              <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline" />
+        <header className="flex items-center justify-center border-b pb-4">
+          <div className="flex items-center">
+            <h1 className='text-2xl font-semibold'>
+              <Link to="/">☕</Link>
+            </h1>
+          </div>
+          <div className="flex-1 text-center">
+            <form className="inline" onSubmit={boardTitleUpdate}>
+              <h1 className="text-2xl">
+                <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
+              </h1>
             </form>
-          </h1>
-          <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
+          </div>
+          <div className="flex items-center">
+            {/* Empty div to balance the flex items */}
+          </div>
         </header>
 
         <div className="flex gap-6 h-full">
           <div className="flex flex-col gap-2 w-56 h-full">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <div className="px-2 py-1 border rounded text-center">
                 <Timer timer={board.timer}/>
               </div>
-              <select className="px-2-1 py border" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
+              <select className="px-2 text-center bg-transparent py-1.5 border rounded" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
                 <option value="this">Added This Week</option>
                 <option value="last">Added Last Week</option>
                 <option value="all">All</option>
               </select>
-              <button type="button" className="px-2 border" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
+              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === "created" ? 'votes' : 'created')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
               <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
-                <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes
+                <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes ({voteTotals.mineTotal}/8)
               </button>
             </div>
             <div className="h-full" />
-            <div className="flex flex-col gap-2"> {/* mt-auto pushes this div to the bottom */}
+            <div className="flex flex-col gap-3"> {/* mt-auto pushes this div to the bottom */}
               <button type="button" className="px-2 py-1 border rounded border-red-500" onClick={votesClearAll}>
                 <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
               </button>
@@ -632,6 +645,10 @@ export default function Board(props) {
                 onClick={unsubBoard}>
                 <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
               </button>
+              <div className="text-center">
+                <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
+              </div>
+
             </div>
           </div>
 
@@ -671,7 +688,7 @@ export default function Board(props) {
                           <div className="flex flex-col gap-2">
                             {/* https://primitives.solidjs.community/package/autofocus */}
                             <input type="hidden" defaultValue={card.id} name="id"/>
-                            <textarea autoFocus className="py-1 px-2 border rounded" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/>
+                            <textarea className="py-1 px-2 border rounded" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/> {/* Line 663 */}
                             {/* <select className="border py-1 px-2">
                               <option>Columns Choice</option>
                             </select> */}

@@ -67,7 +67,7 @@ export default function Home(props) {
 
     <>
       <header className="border-b px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="text-xl font-semibold">☕ Clean Coffee</Link>
+        <Link to="/" className="text-2xl font-semibold">☕ Clean Coffee</Link>
         <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
       </header>
       <div className="flex flex-1 overflow-auto flex-row">
