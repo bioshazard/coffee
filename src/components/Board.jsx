@@ -97,7 +97,14 @@ export default function Board(props) {
   const [votes, setVotes] = useState()
   const columns = ['Topics', 'Discussing', 'Done'] // type: lean
 
-  const [voteSort, setVoteSort] = useState('created') // TODO: localStorage
+  const [voteSort, setVoteSort] = useState(
+    () => localStorage.getItem('voteSort') || 'created'
+  )
+
+  useEffect(() => {
+    localStorage.setItem('voteSort', voteSort)
+  }, [voteSort])
+
   const [timeFilter, setTimeFilter] = useState('this')
 
   useEffect( () => {
