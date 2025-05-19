@@ -634,24 +634,26 @@ export default function Board(props) {
         </pre> */}
 
         {/* `whitespace-nowrap` in this div class gets me the nowrap effect I want but how to I scroll it? float right likely preventing that */}
-        <header className="flex items-center justify-center border-b pb-4">
+        <header className="flex items-center justify-between border-b pb-4">
           <div className="flex items-center">
             <button className="mr-2" onClick={() => setSidebarOpen(true)}>
               <FontAwesomeIcon icon={faBars} />
             </button>
           </div>
-          <div className="flex-1 text-center">
+          <div className="text-center">
             <form className="inline" onSubmit={boardTitleUpdate}>
               <h1 className="text-2xl font-semibold">
                 <Link to="/">☕</Link> / <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
               </h1>
             </form>
           </div>
-          <div className="flex items-center gap-4">
-            <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
-              <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
-            </button>
-            <Timer timer={board.timer}/>
+          <div className="gap-4 hidden sm:block">
+            <div className="flex items-center gap-2">
+              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+                <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
+              </button>
+              <Timer timer={board.timer}/>
+            </div>
           </div>
         </header>
 
@@ -778,9 +780,15 @@ export default function Board(props) {
         {sidebarOpen && (
           <>
             <div className="fixed inset-0 bg-black/30 z-10" onClick={() => setSidebarOpen(false)} />
-            <div className="fixed inset-y-0 left-0 w-56 p-4 bg-white z-20 overflow-y-auto flex flex-col gap-3">
+            <div className="fixed inset-y-0 left-0 w-screen sm:w-80 p-4 bg-white z-20 overflow-y-auto flex flex-col gap-3">
               <button className="self-end" onClick={() => setSidebarOpen(false)}>
                 <FontAwesomeIcon icon={faArrowLeft} />
+              </button>
+              <div className="text-center">
+                <Timer timer={board.timer}/>
+              </div>
+              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+                <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
               <select className="px-2 text-center bg-transparent py-1.5 border rounded" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
                 <option value="this">Added This Week</option>
