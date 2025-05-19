@@ -416,6 +416,9 @@ export default function Board(props) {
         {children}
       </a>
     ),
+    img: (props) => (
+      <img className="rounded-md w-full border" alt={props.alt} src={props.src} />
+    )
   };
 
   // console.log(board)
