@@ -35,12 +35,13 @@ function DropColumn({ colIndex, onDrop, children }) {
   const [, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
     drop: (item) => {
+      console.log("drop",{item})
       onDrop(item.id, colIndex)
     }
   }), [colIndex, onDrop])
 
   return (
-    <ul ref={drop} className="flex flex-col gap-y-4">
+    <ul ref={drop} className="flex-1 flex flex-col gap-y-4">
       {children}
     </ul>
   )
@@ -654,123 +655,123 @@ export default function Board(props) {
           </div>
         </header>
 
-        <div className="flex gap-6 h-full">
-          <div className="flex-1 overflow-x-auto">
+        <div className="flex gap-6 flex-1">
+          <div className="flex-1 overflow-x-auto h-full">
             {/* {JSON.stringify(voteTotals)}
             {JSON.stringify(editing)} */}
-            <ul className="flex flex-row gap-x-4">
-        {columns.map( (column, colIndex) => (
-          <li key={colIndex}>
-            <div className="w-80">
-              <h2 className="text-xl pb-2">{column}</h2>
-              <DropColumn colIndex={colIndex} onDrop={cardColumnSet}>
-                {colIndex == 0 && ( // only display "New Card" on first column (for now?)
-                  <li>
-                    {cardNewForm.includes(colIndex) ? (
-                      <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
-                        <input type="hidden" name="col" value={colIndex} />
-                        <textarea autoFocus className="border rounded w-full px-2 py-1" name="text" placeholder="New Card" rows={5} />
-                        <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
-                          <FontAwesomeIcon icon={faNoteSticky} /> Add Card
-                        </button>
-                        <button className="text-center bg-gray-400 p-2 text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">
-                          <FontAwesomeIcon icon={faCancel} /> Cancel
-                        </button>
-                      </form>
-                    ) : (
-                      <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border rounded w-full px-2 py-1" name="text" placeholder="New Card" />
-                    )}
-                  </li>
-                )}
-                {cards.filter(card => card.col === colIndex && withinFilter(card)).toSorted(cardSortFn).reverse().map( card => (
-                <li key={card.id}>
-                  <DraggableCard card={card}>
-                  <div className="border rounded p-3 bg-white group">
-                    {editing.includes(card.id) ? (
-                      <div>
-                        <form onSubmit={editSubmit}>
-                          <div className="flex flex-col gap-2">
-                            {/* https://primitives.solidjs.community/package/autofocus */}
-                            <input type="hidden" defaultValue={card.id} name="id"/>
-                            <textarea className="py-1 px-2 border rounded" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/> {/* Line 663 */}
-                            {/* <select className="border py-1 px-2">
-                              <option>Columns Choice</option>
-                            </select> */}
-                            {/* <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" /> */}
-                            <button className="py-1 px-2 bg-green-500 text-white font-medium">
-                              <FontAwesomeIcon icon={faFloppyDisk} /> Save
+            <ul className="flex flex-row gap-x-4 h-full">
+            {columns.map( (column, colIndex) => (
+              <li key={colIndex} className="h-full">
+                <div className="w-80 h-full flex flex-col">
+                  <h2 className="text-xl pb-2">{column}</h2>
+                  <DropColumn colIndex={colIndex} onDrop={cardColumnSet}>
+                    {colIndex == 0 && ( // only display "New Card" on first column (for now?)
+                      <li>
+                        {cardNewForm.includes(colIndex) ? (
+                          <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
+                            <input type="hidden" name="col" value={colIndex} />
+                            <textarea autoFocus className="border rounded w-full px-2 py-1" name="text" placeholder="New Card" rows={5} />
+                            <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
+                              <FontAwesomeIcon icon={faNoteSticky} /> Add Card
                             </button>
-                            <button className="py-1 px-2 bg-gray-400 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>
+                            <button className="text-center bg-gray-400 p-2 text-white font-medium" onClick={() => cardNewFormToggle(colIndex)} type="button">
                               <FontAwesomeIcon icon={faCancel} /> Cancel
                             </button>
-                            <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>
-                              <FontAwesomeIcon icon={faTrash} /> Delete
-                            </button>
-                          </div>
-                        </form>
-                      </div>
-                    ) : (
-                      // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
-                      <div className="space-y-1">
-                        <div className="text-xs flex flex-row justify-between">
-                          <div className="space-x-2">
-                            <button 
-                              className="disabled:opacity-25" disabled={card.col === 0}
-                              onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
-                              <FontAwesomeIcon icon={faArrowLeft} />
-                            </button>
-                            <button
-                                className="disabled:opacity-25" disabled={card.col === columns.length - 1}
-                                onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>
-                              <FontAwesomeIcon icon={faArrowRight} />
-                            </button>
-                          </div>
-                          <div className="flex justify-center space-x-2">
-                            <span className="font-bold">Votes: {voteTotals.calculated[card.id] || 0}</span>
-                          </div>
-                          <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
-                            <button className="disabled:opacity-25"
-                                disabled={!voteTotals.mine[card.id] || votingDisabled} 
-                                onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
-                              <FontAwesomeIcon icon={faMinus} />
-                            </button>
-                            {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
-                            <span
-                            className={[
-                              "p-1 rounded",
-                              !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
-                                !votingDisabled ? getMyVoteHue(card.id) : "bg-black text-white"
-                              ].join(" ")
-                              )
-                            ].join(" ")}>
-                              {voteTotals.mine[card.id] && (
-                                // `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
-                                voteTotals.mine[card.id]
-                              ) || 0}
-                            </span>
-                            <button disabled={voteTotals.mineTotal >= 8} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
-                          </div>
-                        </div>
-
-                        <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
-
-                        <div className="flex flex-row justify-between text-xs text-gray-500">
-                          <div className="text-left ">
-                            <em>{new Date(card.created).toLocaleDateString()} {/*{new Date(card.created).toLocaleTimeString()}*/}</em>
-                          </div>
-                          <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
-                        </div>
-                      </div>
+                          </form>
+                        ) : (
+                          <input onClick={() => cardNewFormToggle(colIndex)} onBlur={() => cardNewFormToggle(colIndex)} autoComplete="off" className="disabled border rounded w-full px-2 py-1" name="text" placeholder="New Card" />
+                        )}
+                      </li>
                     )}
-                  </div>
-                  </DraggableCard>
-                </li>
-                ))}
-              </DropColumn>
-            </div>
-          </li>
-        ))}
-        </ul>
+                    {cards.filter(card => card.col === colIndex && withinFilter(card)).toSorted(cardSortFn).reverse().map( card => (
+                    <li key={card.id}>
+                      <DraggableCard card={card}>
+                        <div className="border rounded p-3 bg-white group">
+                          {editing.includes(card.id) ? (
+                            <div>
+                              <form onSubmit={editSubmit}>
+                                <div className="flex flex-col gap-2">
+                                  {/* https://primitives.solidjs.community/package/autofocus */}
+                                  <input type="hidden" defaultValue={card.id} name="id"/>
+                                  <textarea className="py-1 px-2 border rounded" rows={card.content.split('\n').length + 4} defaultValue={card.content} name="content"/> {/* Line 663 */}
+                                  {/* <select className="border py-1 px-2">
+                                    <option>Columns Choice</option>
+                                  </select> */}
+                                  {/* <input className="py-1 px-2 bg-green-500 text-white font-medium" type="submit" value="Save" /> */}
+                                  <button className="py-1 px-2 bg-green-500 text-white font-medium">
+                                    <FontAwesomeIcon icon={faFloppyDisk} /> Save
+                                  </button>
+                                  <button className="py-1 px-2 bg-gray-400 text-white font-medium" type="button" onClick={() => cardEditToggle(card.id)}>
+                                    <FontAwesomeIcon icon={faCancel} /> Cancel
+                                  </button>
+                                  <button className="mt-6 py-1 px-2 bg-red-800 text-white font-medium" type="button" onClick={() => cardDelete(card.id)}>
+                                    <FontAwesomeIcon icon={faTrash} /> Delete
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
+                          ) : (
+                            // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
+                            <div className="space-y-1">
+                              <div className="text-xs flex flex-row justify-between">
+                                <div className="space-x-2">
+                                  <button 
+                                    className="disabled:opacity-25" disabled={card.col === 0}
+                                    onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
+                                    <FontAwesomeIcon icon={faArrowLeft} />
+                                  </button>
+                                  <button
+                                      className="disabled:opacity-25" disabled={card.col === columns.length - 1}
+                                      onClick={() => cardColumnSet(card.id, Math.min(card.col + 1, columns.length - 1))}>
+                                    <FontAwesomeIcon icon={faArrowRight} />
+                                  </button>
+                                </div>
+                                <div className="flex justify-center space-x-2">
+                                  <span className="font-bold">Votes: {voteTotals.calculated[card.id] || 0}</span>
+                                </div>
+                                <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
+                                  <button className="disabled:opacity-25"
+                                      disabled={!voteTotals.mine[card.id] || votingDisabled} 
+                                      onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
+                                    <FontAwesomeIcon icon={faMinus} />
+                                  </button>
+                                  {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
+                                  <span
+                                  className={[
+                                    "p-1 rounded",
+                                    !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
+                                      !votingDisabled ? getMyVoteHue(card.id) : "bg-black text-white"
+                                    ].join(" ")
+                                    )
+                                  ].join(" ")}>
+                                    {voteTotals.mine[card.id] && (
+                                      // `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
+                                      voteTotals.mine[card.id]
+                                    ) || 0}
+                                  </span>
+                                  <button disabled={voteTotals.mineTotal >= 8} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
+                                </div>
+                              </div>
+
+                              <ReactMarkdown children={card.content} components={components} remarkPlugins={[remarkGfm]} />
+
+                              <div className="flex flex-row justify-between text-xs text-gray-500">
+                                <div className="text-left ">
+                                  <em>{new Date(card.created).toLocaleDateString()} {/*{new Date(card.created).toLocaleTimeString()}*/}</em>
+                                </div>
+                                <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </DraggableCard>
+                    </li>
+                    ))}
+                  </DropColumn>
+                </div>
+              </li>
+            ))}
+            </ul>
           </div>
         </div>
 
