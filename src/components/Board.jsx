@@ -7,12 +7,44 @@ import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRepeat, faRightFromBracket, faRotateLeft, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash, faBars } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
+import { DndProvider, useDrag, useDrop } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import GitHubButton from "react-github-btn";
 // import Timer from "./Timer";
 
 ReactModal.setAppElement('#root');
 
 const ran = false
+const ItemTypes = { CARD: 'card' }
+
+function DraggableCard({ card, children }) {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.CARD,
+    item: { id: card.id, col: card.col },
+    collect: monitor => ({ isDragging: monitor.isDragging() })
+  }), [card])
+
+  return (
+    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
+      {children}
+    </div>
+  )
+}
+
+function DropColumn({ colIndex, onDrop, children }) {
+  const [, drop] = useDrop(() => ({
+    accept: ItemTypes.CARD,
+    drop: (item) => {
+      onDrop(item.id, colIndex)
+    }
+  }), [colIndex, onDrop])
+
+  return (
+    <ul ref={drop} className="flex flex-col gap-y-4">
+      {children}
+    </ul>
+  )
+}
 export default function Board(props) {
   
   const navigate = useNavigate()
@@ -567,6 +599,7 @@ export default function Board(props) {
   const ownsBoard = board.owner_id == psuedonym.id
 
   return (
+    <DndProvider backend={HTML5Backend}>
     <>
       <ReactModal
         isOpen={voteClearModalOpen}
@@ -630,7 +663,7 @@ export default function Board(props) {
           <li key={colIndex}>
             <div className="w-80">
               <h2 className="text-xl pb-2">{column}</h2>
-              <ul className="flex flex-col gap-y-4">
+              <DropColumn colIndex={colIndex} onDrop={cardColumnSet}>
                 {colIndex == 0 && ( // only display "New Card" on first column (for now?)
                   <li>
                     {cardNewForm.includes(colIndex) ? (
@@ -651,6 +684,7 @@ export default function Board(props) {
                 )}
                 {cards.filter(card => card.col === colIndex && withinFilter(card)).toSorted(cardSortFn).reverse().map( card => (
                 <li key={card.id}>
+                  <DraggableCard card={card}>
                   <div className="border rounded p-3 bg-white group">
                     {editing.includes(card.id) ? (
                       <div>
@@ -729,9 +763,10 @@ export default function Board(props) {
                       </div>
                     )}
                   </div>
+                  </DraggableCard>
                 </li>
                 ))}
-              </ul>
+              </DropColumn>
             </div>
           </li>
         ))}
@@ -775,5 +810,6 @@ export default function Board(props) {
 
       </div>
     </>
+    </DndProvider>
   )
 }
