@@ -25,23 +25,36 @@ function DraggableCard({ card, children }) {
   }), [card])
 
   return (
-    <div ref={drag} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <div
+      ref={drag}
+      className="transition-transform"
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        transform: isDragging ? 'scale(1.05)' : 'none',
+        boxShadow: isDragging ? '0 4px 10px rgba(0,0,0,0.15)' : 'none',
+        cursor: 'grab'
+      }}
+    >
       {children}
     </div>
   )
 }
 
 function DropColumn({ colIndex, onDrop, children }) {
-  const [, drop] = useDrop(() => ({
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
     drop: (item) => {
-      console.log("drop",{item})
+      console.log("drop", { item })
       onDrop(item.id, colIndex)
-    }
+    },
+    collect: monitor => ({ isOver: monitor.isOver() })
   }), [colIndex, onDrop])
 
   return (
-    <ul ref={drop} className="flex-1 flex flex-col gap-y-4">
+    <ul
+      ref={drop}
+      className={`flex-1 flex flex-col gap-y-4 transition-colors ${isOver ? 'bg-green-50 ring-2 ring-green-400' : ''}`}
+    >
       {children}
     </ul>
   )
