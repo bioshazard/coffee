@@ -573,29 +573,6 @@ export default function Board(props) {
   // } )
   // console.log(votingDisabled)
 
-  // trick to get tailwind to include these...
-  const hueClasses = [
-    "bg-blue-100",
-    "bg-blue-200",
-    "bg-blue-300",
-    "bg-blue-400",
-    "bg-blue-500",
-    "bg-blue-600",
-    "bg-blue-700",
-    "bg-blue-800",
-    "bg-blue-900",
-  ]
-
-  const getMyVoteHue = (cardId) => {
-    // Print hue by weight first decimal (0+ to 10)
-    const myVoteWeight = Math.round(voteTotals.mine[cardId] * 10 / voteTotals.mineTotal)
-    
-    
-    // even normalization across blue 100 - 900
-    const tailwindHue = (Math.floor(myVoteWeight * 0.4) + 4) * 100
-
-    return `bg-blue-${tailwindHue} ${tailwindHue > 300 ? "text-white" : "text-black"}`
-  }
 
   const ownsBoard = board.owner_id == psuedonym.id
 
@@ -715,9 +692,12 @@ export default function Board(props) {
                           ) : (
                             // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
                             <div className="space-y-1">
-                              <div className="text-xs flex flex-row justify-between">
+                              <div className="text-center text-xs font-mono">
+                                {"\u2022".repeat(voteTotals.mine[card.id] || 0)}
+                              </div>
+                              <div className="text-xs flex flex-row justify-between items-center">
                                 <div className="space-x-2">
-                                  <button 
+                                  <button
                                     className="disabled:opacity-25" disabled={card.col === 0}
                                     onClick={() => cardColumnSet(card.id, Math.max(card.col - 1, 0))}>
                                     <FontAwesomeIcon icon={faArrowLeft} />
@@ -728,28 +708,14 @@ export default function Board(props) {
                                     <FontAwesomeIcon icon={faArrowRight} />
                                   </button>
                                 </div>
-                                <div className="flex justify-center space-x-2">
-                                  <span className="font-bold">Votes: {voteTotals.calculated[card.id] || 0}</span>
-                                </div>
-                                <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> 
+                                <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}>
                                   <button className="disabled:opacity-25"
-                                      disabled={!voteTotals.mine[card.id] || votingDisabled} 
+                                      disabled={!voteTotals.mine[card.id] || votingDisabled}
                                       onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
                                     <FontAwesomeIcon icon={faMinus} />
                                   </button>
-                                  {/* TODO: Kinda gross to have double ternary... but its not THAT complicated... */}
-                                  <span
-                                  className={[
-                                    "p-1 rounded",
-                                    !voteTotals.mine[card.id] ? "bg-gray-300" : ( [
-                                      !votingDisabled ? getMyVoteHue(card.id) : "bg-black text-white"
-                                    ].join(" ")
-                                    )
-                                  ].join(" ")}>
-                                    {voteTotals.mine[card.id] && (
-                                      // `${(voteTotals.mine[card.id] / voteTotals.mineTotal).toFixed(2)} (${voteTotals.mine[card.id]})`
-                                      voteTotals.mine[card.id]
-                                    ) || 0}
+                                  <span className="font-bold">
+                                    {voteTotals.calculated[card.id] || 0}
                                   </span>
                                   <button disabled={voteTotals.mineTotal >= 8} className="disabled:opacity-25" onClick={() => voteAdd(card.id, voteTotals.mine[card.id])}><FontAwesomeIcon icon={faPlus} /></button>
                                 </div>
