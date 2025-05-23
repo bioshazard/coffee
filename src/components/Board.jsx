@@ -653,6 +653,7 @@ export default function Board(props) {
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
               <Timer timer={board.timer}/>
+              <span className="font-mono">{voteTotals.mineTotal}/8</span>
             </div>
           </div>
         </header>
