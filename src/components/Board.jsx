@@ -5,7 +5,7 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowDown, faArrowLeft, faArrowRight, faArrowUp, faBomb, faBroom, faCancel, faDoorOpen, faDumpsterFire, faEraser, faFire, faFloppyDisk, faHourglass, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRepeat, faRightFromBracket, faRotateLeft, faSort, faStar, faStop, faStopwatch, faThumbTack, faTrash, faBars } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faBomb, faCancel, faDumpsterFire, faEraser, faFloppyDisk, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRotateLeft, faSort, faStop, faStopwatch, faThumbTack, faTrash, faBars, faVoteYea } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -14,7 +14,7 @@ import GitHubButton from "react-github-btn";
 
 ReactModal.setAppElement('#root');
 
-const ran = false
+// const ran = false
 const ItemTypes = { CARD: 'card' }
 
 function DraggableCard({ card, children }) {
@@ -138,7 +138,7 @@ export default function Board(props) {
     localStorage.setItem('voteSort', voteSort)
   }, [voteSort])
 
-  const [timeFilter, setTimeFilter] = useState('this')
+  const [timeFilter, setTimeFilter] = useState('all')
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const getBoard = useCallback(async () => {
@@ -533,7 +533,8 @@ export default function Board(props) {
       <div>
         {/* {props.timer} */}
         {remainingMilliseconds > 0 ? (
-          <div className="flex space-x-2">
+          <div className="flex gap-2 justify-center items-center">
+            <FontAwesomeIcon icon={faStopwatch} />
             <div className="font-mono">
               {mmss()}
             </div>
@@ -647,15 +648,20 @@ export default function Board(props) {
               </h1>
             </form>
           </div>
-          <div className="gap-4 hidden sm:block">
+          <div className="gap-4">
             <div className="flex items-center gap-2">
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+              <div className="hidden sm:block">
+                <Timer timer={board.timer}/>
+              </div>
+              <button type="button" className="hidden sm:block px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
-              <Timer timer={board.timer}/>
-              <span className="font-mono">{voteTotals.mineTotal}/8</span>
+              <div className="font-mono text-gray-500 border rounded px-2 py-1">
+                <FontAwesomeIcon icon={faVoteYea} /> {voteTotals.mineTotal}/8
+              </div>
             </div>
           </div>
+
         </header>
 
         <div className="flex gap-6 flex-1">
@@ -800,6 +806,7 @@ export default function Board(props) {
                 <FontAwesomeIcon icon={faRotateLeft} /> Return My Votes ({voteTotals.mineTotal}/8)
               </button>
               <div className="flex-1" />
+              <h2 className="text-red-500 font-bold text-center">Danger Zone</h2>
               <button type="button" className="px-2 py-1 border rounded border-red-500" onClick={votesClearAll}>
                 <FontAwesomeIcon icon={faEraser} /> Clear ALL Votes
               </button>
@@ -812,7 +819,7 @@ export default function Board(props) {
                 <FontAwesomeIcon icon={faThumbTack} /> Unpin Board
               </button>
               <div className="text-center">
-                <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
+                <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Issues</GitHubButton>
               </div>
             </div>
           </>
