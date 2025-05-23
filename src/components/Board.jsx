@@ -692,9 +692,6 @@ export default function Board(props) {
                           ) : (
                             // https://tailwindcss.com/docs/hover-focus-and-other-states#styling-based-on-parent-state
                             <div className="space-y-1">
-                              <div className="text-center text-xs font-mono">
-                                {"\u2022".repeat(voteTotals.mine[card.id] || 0)}
-                              </div>
                               <div className="text-xs flex flex-row justify-between items-center">
                                 <div className="space-x-2">
                                   <button
@@ -708,7 +705,11 @@ export default function Board(props) {
                                     <FontAwesomeIcon icon={faArrowRight} />
                                   </button>
                                 </div>
-                                <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}>
+                                {/* <div className="space-x-2 font-mono" title={votingDisabled ? "Voting is disabled after discussion begins" : "Add your votes!"}> */}
+                                <div className="space-x-2 font-mono flex flex-row">
+                                  <div className="text-center text-xs font-mono">
+                                    {"\u2022".repeat(voteTotals.mine[card.id] || 0)}
+                                  </div>
                                   <button className="disabled:opacity-25"
                                       disabled={!voteTotals.mine[card.id] || votingDisabled}
                                       onClick={() => voteRemove(card.id, voteTotals.mine[card.id])}>
