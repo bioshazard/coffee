@@ -5,7 +5,7 @@ import { supabase } from "../hooks/useSupabase";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRight, faBomb, faCancel, faDumpsterFire, faEraser, faFloppyDisk, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRotateLeft, faSort, faStop, faStopwatch, faThumbTack, faTrash, faBars, faVoteYea } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faArrowRight, faBomb, faCancel, faDumpsterFire, faEraser, faFloppyDisk, faMinus, faNoteSticky, faPencil, faPlay, faPlus, faRotateLeft, faSort, faStop, faStopwatch, faThumbTack, faTrash, faBars, faVoteYea, faCoffee } from "@fortawesome/free-solid-svg-icons";
 import ReactModal from "react-modal";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -621,7 +621,7 @@ export default function Board(props) {
           <div className="text-center">
             <form className="inline" onSubmit={boardTitleUpdate}>
               <h1 className="text-2xl font-semibold">
-                <Link to="/">☕</Link> / <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
+                <Link to="/"><FontAwesomeIcon icon={faCoffee} /></Link> / <input name="title" type="text" defaultValue={board.title} size={board.title.length} className="w-fit inline bg-transparent" />
               </h1>
             </form>
           </div>

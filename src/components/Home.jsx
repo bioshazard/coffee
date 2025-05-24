@@ -4,6 +4,8 @@ import { supabase } from "../hooks/useSupabase";
 import { Store } from "../hooks/useStore";
 import { v4 as uuidv4 } from 'uuid';
 import GitHubButton from "react-github-btn";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 
 
 export default function Home(props) {
@@ -67,7 +69,7 @@ export default function Home(props) {
 
     <>
       <header className="border-b px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-semibold">☕ Clean Coffee</Link>
+        <Link to="/" className="text-2xl font-semibold"><FontAwesomeIcon icon={faCoffee} /> Clean Coffee</Link>
         <GitHubButton href="https://github.com/bioshazard/coffee/issues" data-size="large" data-show-count="true" aria-label="Issue bioshazard/coffee on GitHub">Feedback & Ideas</GitHubButton>
       </header>
       <div className="flex flex-1 overflow-auto flex-row">
