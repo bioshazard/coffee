@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
+import { registerSW } from 'virtual:pwa-register'
 
 import {
   createHashRouter as createRouter,
@@ -36,6 +37,8 @@ const router = createRouter([
     ]
   },
 ]);
+
+registerSW({ immediate: true })
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
