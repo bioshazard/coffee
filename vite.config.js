@@ -14,11 +14,14 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
+        devOptions: {
+          enabled: true
+        },
         manifest: {
+          start_url: basePath,
           name: 'Coffee',
           short_name: 'Coffee',
           description: 'The cleanest lean coffee solution',
-          start_url: '/',
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#ffffff',
@@ -49,7 +52,8 @@ export default defineConfig(({ mode }) => {
           target: 'http://172.18.0.1:54321',
           changeOrigin: true,
           ws: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          rewrite: (path) => path.replace(/^\/api/, ''),
+          
         }
       }
     } : undefined,
