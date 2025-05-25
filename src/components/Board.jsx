@@ -340,6 +340,11 @@ export default function Board(props) {
   const [cardNewForm, setCardNewForm] = useState([])
   const [searchParams, setSearchParams] = useSearchParams()
   const shareParam = searchParams.get('share')
+  const formatAsBlockquote = (text) => {
+    if (!text) return '';
+    return text.split('\n').map(line => `> ${line}`).join('\n');
+  };
+
   const [shareText, setShareText] = useState(
     shareParam ? decodeURIComponent(shareParam) : ''
   )
@@ -348,7 +353,7 @@ export default function Board(props) {
     if(shareParam && !cardNewForm.includes(0)) {
       setCardNewForm([0])
     }
-    setShareText(shareParam ? decodeURIComponent(shareParam) : '')
+    setShareText(shareParam ? formatAsBlockquote(decodeURIComponent(shareParam)) : '')
   }, [shareParam])
 
   // Toggle by either adding the id if not there, or returning the array without it if present
