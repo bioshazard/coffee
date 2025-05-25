@@ -51,6 +51,8 @@ export default function Board(props) {
   const navigate = useNavigate()
   const { board_id } = useParams()
 
+  localStorage.setItem("lastBoard", board_id);
+
   const { psuedonym, boards } = useContext(Store)
   // const psuedonym.psuedonym = psuedonym.psuedonym // TODO: clean this up
 

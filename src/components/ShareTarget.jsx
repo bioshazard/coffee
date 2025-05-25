@@ -15,7 +15,7 @@ export default function ShareTarget() {
       url: searchParams.get('url')
     };
     const payload = encodeURIComponent(JSON.stringify(data));
-    const boardId = store.boards[0]?.id;
+    const boardId = localStorage.getItem("lastBoard") ?? store.boards[0]?.id;
     if(boardId) {
       navigate(`/board/${boardId}?share=${payload}`);
     } else {
