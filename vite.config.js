@@ -19,13 +19,12 @@ export default defineConfig(({ mode }) => {
         },
         manifest: {
           start_url: basePath,
-          name: 'Coffee',
+          name: 'Clean Coffee',
           short_name: 'Coffee',
           description: 'The cleanest lean coffee solution',
           share_target: {
-            action: '/share-target',
+            action: '/#/share-target',
             method: 'GET',
-            enctype: "multipart/form-data",
             params: {
               title: 'title',
               text: 'text',
