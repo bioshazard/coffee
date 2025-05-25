@@ -11,7 +11,14 @@ import {
 import App from './App.jsx'
 import Home from './components/Home.jsx';
 import Board from './components/Board.jsx';
-import Test from './components/Test';
+import ShareTarget from './components/ShareTarget.jsx';
+
+// https://github.com/vuejs/vue-router/issues/2125#issuecomment-519521424
+if (window.location.search) {
+  window.location.replace(
+    window.location.pathname + window.location.hash + window.location.search
+  );
+}
 
 const router = createRouter([
   // {
@@ -33,6 +40,10 @@ const router = createRouter([
       {
         path: "/board/:board_id",
         element: <Board />
+      },
+      {
+        path: "/share-target",
+        element: <ShareTarget />
       }
     ]
   },

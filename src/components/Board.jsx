@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Store } from "../hooks/useStore";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "../hooks/useSupabase";
@@ -50,6 +50,8 @@ export default function Board(props) {
   
   const navigate = useNavigate()
   const { board_id } = useParams()
+
+  localStorage.setItem("lastBoard", board_id);
 
   const { psuedonym, boards } = useContext(Store)
   // const psuedonym.psuedonym = psuedonym.psuedonym // TODO: clean this up
@@ -332,6 +334,16 @@ export default function Board(props) {
 
   const [editing, setEditing] = useState([])
   const [cardNewForm, setCardNewForm] = useState([])
+  const [searchParams] = useSearchParams()
+  const shareParam = searchParams.get('share')
+  const shareData = shareParam ? JSON.parse(decodeURIComponent(shareParam)) : null
+  const [shareText] = useState(shareData ? JSON.stringify(shareData, null, 2) : '')
+
+  useEffect(() => {
+    if(shareData && !cardNewForm.includes(0)) {
+      setCardNewForm([0])
+    }
+  }, [shareData])
 
   // Toggle by either adding the id if not there, or returning the array without it if present
   const cardEditToggle = (id) => {
@@ -656,7 +668,7 @@ export default function Board(props) {
                         {cardNewForm.includes(colIndex) ? (
                           <form onSubmit={cardNewSubmit} className="flex flex-col gap-y-2">
                             <input type="hidden" name="col" value={colIndex} />
-                            <textarea autoFocus className="border rounded w-full px-2 py-1" name="text" placeholder="New Card" rows={5} />
+                            <textarea autoFocus className="border rounded w-full px-2 py-1" name="text" placeholder="New Card" rows={5} defaultValue={shareText} />
                             <button name="addCardBtn" className="text-center bg-green-500 p-2 text-white font-medium disabled:opacity-25">
                               <FontAwesomeIcon icon={faNoteSticky} /> Add Card
                             </button>
