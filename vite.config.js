@@ -22,16 +22,16 @@ export default defineConfig(({ mode }) => {
           name: 'Coffee',
           short_name: 'Coffee',
           description: 'The cleanest lean coffee solution',
-          // share_target: {
-          //   action: '/share-target',
-          //   method: 'GET',
-          //   enctype: "multipart/form-data",
-          //   params: {
-          //     title: 'title',
-          //     text: 'text',
-          //     url: 'url'
-          //   }
-          // },
+          share_target: {
+            action: '/share-target',
+            method: 'GET',
+            enctype: "multipart/form-data",
+            params: {
+              title: 'title',
+              text: 'text',
+              url: 'url'
+            }
+          },
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#ffffff',
