@@ -131,7 +131,7 @@ export default function Board(props) {
   const columns = ['Topics', 'Discussing', 'Done'] // type: lean
 
   const [voteSort, setVoteSort] = useState(
-    () => localStorage.getItem('voteSort') || 'created'
+    () => localStorage.getItem('voteSort') || 'updated'
   )
 
   useEffect(() => {
@@ -327,7 +327,8 @@ export default function Board(props) {
 
 
   const cardColumnSet = async (card_id, col) => {
-    const { error } = await supabase.from('cards').update({col}).eq('id', card_id)
+    const update = { col, updated: new Date().toISOString() }
+    const { error } = await supabase.from('cards').update(update).eq('id', card_id)
   }
 
   const [editing, setEditing] = useState([])
@@ -348,7 +349,7 @@ export default function Board(props) {
     event.preventDefault()
     const card_id = event.target.id.value
     const content = event.target.content.value
-    const update = { content }
+    const update = { content, updated: new Date().toISOString() }
     const { error } = await supabase
       .from('cards').update(update).eq('id', card_id)
     cardEditToggle(card_id)
@@ -437,8 +438,8 @@ export default function Board(props) {
   const voteTotals = calculateVotes()
   const cardSortFn = (a, b) => {
 
-    if(voteSort === "created") {
-      return new Date(a.created).getTime() - new Date(b.created).getTime()
+    if(voteSort === "updated") {
+      return new Date(a.updated).getTime() - new Date(b.updated).getTime()
     }
 
     // else sort by vote calculation
@@ -450,7 +451,7 @@ export default function Board(props) {
   const withinFilter = (card) => {
     if(timeFilter === 'all') return true
 
-    const created = new Date(card.created)
+    const updatedDate = new Date(card.updated)
     const now = new Date()
     const startOfWeek = new Date(now)
     startOfWeek.setHours(0, 0, 0, 0)
@@ -459,10 +460,10 @@ export default function Board(props) {
     startOfLastWeek.setDate(startOfLastWeek.getDate() - 7)
 
     if(timeFilter === 'this') {
-      return created >= startOfWeek
+      return updatedDate >= startOfWeek
     }
     if(timeFilter === 'last') {
-      return created >= startOfLastWeek && created < startOfWeek
+      return updatedDate >= startOfLastWeek && updatedDate < startOfWeek
     }
     return true
   }
@@ -630,7 +631,7 @@ export default function Board(props) {
               <div className="hidden sm:block">
                 <Timer timer={board.timer}/>
               </div>
-              <button type="button" className="hidden sm:block px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+              <button type="button" className="hidden sm:block px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'updated' ? 'votes' : 'updated')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
               <div className="font-mono text-gray-500 border rounded px-2 py-1">
@@ -733,7 +734,7 @@ export default function Board(props) {
 
                               <div className="flex flex-row justify-between text-xs text-gray-500">
                                 <div className="text-left ">
-                                  <em>{new Date(card.created).toLocaleDateString()} {/*{new Date(card.created).toLocaleTimeString()}*/}</em>
+                                  <em>{new Date(card.updated).toLocaleDateString()} {/*{new Date(card.updated).toLocaleTimeString()}*/}</em>
                                 </div>
                                 <button className={`bg-white rounded ${true && "invisible group-hover:visible"}`} onClick={() => cardEditToggle(card.id)}><FontAwesomeIcon icon={faPencil} /></button>
                               </div>
@@ -761,12 +762,12 @@ export default function Board(props) {
               <div className="text-center">
                 <Timer timer={board.timer}/>
               </div>
-              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'created' ? 'votes' : 'created')}>
+              <button type="button" className="px-2 py-1 border rounded" onClick={() => setVoteSort(state => state === 'updated' ? 'votes' : 'updated')}>
                 <FontAwesomeIcon icon={faSort} /> Sort: {voteSort}
               </button>
               <select className="px-2 text-center bg-transparent py-1.5 border rounded" value={timeFilter} onChange={e => setTimeFilter(e.target.value)}>
-                <option value="this">Added This Week</option>
-                <option value="last">Added Last Week</option>
+                <option value="this">Updated This Week</option>
+                <option value="last">Updated Last Week</option>
                 <option value="all">All</option>
               </select>
               <button type="button" className="px-2 py-1 border rounded" onClick={votesClearMine}>
