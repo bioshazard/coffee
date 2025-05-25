@@ -237,11 +237,15 @@ export default function Board(props) {
     const { error } = await supabase
       .from('cards')
       .insert(insert)
-    
+
     // Reset input form
     event.target.reset()
     event.target.text.disabled = false
     event.target.addCardBtn.disabled = false
+
+    // Clear share info so subsequent cards are blank
+    setShareText('')
+    setSearchParams({})
 
     // Re-focus textarea
     event.target.text.focus()
@@ -334,16 +338,18 @@ export default function Board(props) {
 
   const [editing, setEditing] = useState([])
   const [cardNewForm, setCardNewForm] = useState([])
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const shareParam = searchParams.get('share')
-  const shareData = shareParam ? JSON.parse(decodeURIComponent(shareParam)) : null
-  const [shareText] = useState(shareData ? JSON.stringify(shareData, null, 2) : '')
+  const [shareText, setShareText] = useState(
+    shareParam ? decodeURIComponent(shareParam) : ''
+  )
 
   useEffect(() => {
-    if(shareData && !cardNewForm.includes(0)) {
+    if(shareParam && !cardNewForm.includes(0)) {
       setCardNewForm([0])
     }
-  }, [shareData])
+    setShareText(shareParam ? decodeURIComponent(shareParam) : '')
+  }, [shareParam])
 
   // Toggle by either adding the id if not there, or returning the array without it if present
   const cardEditToggle = (id) => {

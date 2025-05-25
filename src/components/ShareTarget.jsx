@@ -9,12 +9,16 @@ export default function ShareTarget() {
 
   useEffect(() => {
     if(!store?.boards) return;
-    const data = {
-      title: searchParams.get('title'),
-      text: searchParams.get('text'),
-      url: searchParams.get('url')
-    };
-    const payload = encodeURIComponent(JSON.stringify(data));
+    const fields = [
+      ['Title', searchParams.get('title')],
+      ['Text', searchParams.get('text')],
+      ['URL', searchParams.get('url')]
+    ];
+    const cardContent = fields
+      .filter(([, value]) => value)
+      .map(([label, value]) => `> ${label}: ${value}`)
+      .join('\n\n');
+    const payload = encodeURIComponent(cardContent);
     const boardId = localStorage.getItem("lastBoard") ?? store.boards[0]?.id;
     if(boardId) {
       navigate(`/board/${boardId}?share=${payload}`);
