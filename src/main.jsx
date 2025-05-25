@@ -12,6 +12,7 @@ import App from './App.jsx'
 import Home from './components/Home.jsx';
 import Board from './components/Board.jsx';
 import Test from './components/Test';
+import ShareTarget from './components/ShareTarget.jsx';
 
 const router = createRouter([
   // {
@@ -33,6 +34,10 @@ const router = createRouter([
       {
         path: "/board/:board_id",
         element: <Board />
+      },
+      {
+        path: "/share-target",
+        element: <ShareTarget />
       }
     ]
   },
