@@ -35,18 +35,18 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           background_color: '#ffffff',
           theme_color: '#ffffff',
-          // icons: [
-          //   {
-          //     src: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%27.9em%27%20font-size%3D%2790%27%3E%E2%98%95%3C%2Ftext%3E%3C%2Fsvg%3E',
-          //     sizes: '192x192',
-          //     type: 'image/svg+xml'
-          //   },
-          //   {
-          //     src: 'data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ctext%20y%3D%27.9em%27%20font-size%3D%2790%27%3E%E2%98%95%3C%2Ftext%3E%3C%2Fsvg%3E',
-          //     sizes: '512x512',
-          //     type: 'image/svg+xml'
-          //   }
-          // ]
+          icons: [
+            {
+              src: '/vite.svg',
+              sizes: '192x192',
+              type: 'image/svg+xml'
+            },
+            {
+              src: '/vite.svg',
+              sizes: '512x512',
+              type: 'image/svg+xml'
+            }
+          ]
         }
       })
     ],
