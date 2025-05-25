@@ -17,7 +17,7 @@ export default function ShareTarget() {
     const cardContent = fields
       .filter(([, value]) => value)
       .map(([label, value]) => `> ${label}: ${value}`)
-      .join('\n');
+      .join('\n\n');
     const payload = encodeURIComponent(cardContent);
     const boardId = localStorage.getItem("lastBoard") ?? store.boards[0]?.id;
     if(boardId) {
