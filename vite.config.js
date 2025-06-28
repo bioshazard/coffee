@@ -5,9 +5,10 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   
-  const basePath = mode === 'development'
-    ? '/absproxy/5173'
-    : '/';
+  const basePath = '/';
+  // = mode === 'development'
+  //   ? '/absproxy/5173'
+  //   : '/';
 
   return {
     plugins: [
@@ -55,6 +56,7 @@ export default defineConfig(({ mode }) => {
       allowedHosts: [
         "bios-kubuntu.home.arpa",
         "code.lab1.bios.dev",
+        "5173.lab1.bios.dev",
       ],
       proxy: {
         '/api': {

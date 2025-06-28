@@ -665,11 +665,12 @@ export default function Board(props) {
 
         </header>
 
-        <div className="flex gap-6 flex-1">
-          <div className="flex-1 overflow-x-auto h-full">
+        <div className="flex gap-6 flex-1 overflow-hidden h-full">
+          {/* <div className="flex-1 overflow-x-auto h-full"> */}
+          <div className="flex-1 overflow-auto h-full">
             {/* {JSON.stringify(voteTotals)}
             {JSON.stringify(editing)} */}
-            <ul className="flex flex-row gap-x-4 h-full">
+            <ul className="flex flex-row gap-x-4 h-full pb-4">
             {columns.map( (column, colIndex) => (
               <li key={colIndex} className="h-full">
                 <div className="w-80 h-full flex flex-col">
