@@ -527,6 +527,7 @@ export default function Board(props) {
 
     const getTimerDiff = () => new Date(props.timer).getTime() - new Date().getTime()
     const [remainingMilliseconds, setRemainingMilliseconds] = useState( getTimerDiff() )
+    const [flash, setFlash] = useState(false)
 
     const mmss = () => {
       return [
@@ -538,23 +539,30 @@ export default function Board(props) {
     useEffect( () => {
       // If board time remaining is positive, init remaining state and interval countdown
       const diff = getTimerDiff()
-      // console.log("DIFF", diff)
       if(diff < 0) return
       setRemainingMilliseconds(diff)
 
-      // setRemainingSeconds()
       const countdownInterval = setInterval( () => {
         const diff = getTimerDiff()
         if(diff < 0) { clearInterval(countdownInterval) }
-        // console.log("REMAINING", diff)
         setRemainingMilliseconds(diff)
       }, 1000)
-      
+
       return () => clearInterval(countdownInterval)
     }, [])
 
+    useEffect(() => {
+      if(getTimerDiff() > 0) {
+        setFlash(true)
+        const t = setTimeout(() => setFlash(false), 1000)
+        return () => clearTimeout(t)
+      }
+    }, [props.timer])
+
+    const warning = remainingMilliseconds <= 10000 && remainingMilliseconds >= 1000
+
     return (
-      <div>
+      <div className={`${flash ? 'animate-flash-green' : ''} ${warning ? 'bg-red-200' : ''}`}> 
         {/* {props.timer} */}
         {remainingMilliseconds > 0 ? (
           <div className="flex gap-2 justify-center items-center">
